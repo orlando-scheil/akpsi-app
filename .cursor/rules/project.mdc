@@ -1,0 +1,73 @@
+---
+description: Project overview, tech stack, and conventions for akpsi-app
+alwaysApply: true
+---
+
+# akpsi-app
+
+A web app for the Alpha Kappa Psi (AKPsi) chapter at UW. Built for members, officers, and pledges to stay connected and organized.
+
+## Tech Stack
+
+- **Framework:** Next.js 16 (App Router) with React 19 and TypeScript
+- **UI:** MUI v7 (`@mui/material`) for components, Tailwind CSS 4 for layout/spacing utilities
+- **Backend:** Firebase (Auth, Firestore, Storage, Hosting)
+- **Styling approach:** Use MUI's `sx` prop and theme system for component styling. Use Tailwind only for layout utilities (flex, grid, padding, margin, responsive breakpoints).
+
+## MVP Features (in priority order)
+
+### 1. Announcements Page
+- Members can post announcements (title, body, timestamp, author)
+- Future: Slack channel integration to auto-pull announcements from Slack
+- Stored in Firestore `announcements` collection
+
+### 2. Member Registry
+- Self-supplied member profiles with: name, major, sub-concentration, year, big (mentor), pledge class, phone, email
+- Members control which contact info is visible to others
+- Stored in Firestore `members` collection
+
+### 3. Family Tree (future, unplanned)
+- Visual "family tree" showing big/little relationships across pledge classes
+- Will use a dedicated visualization library (TBD)
+- No implementation specifics yet — placeholder in the nav only
+
+## Authentication
+
+- Firebase Auth with Google sign-in, restricted to UW email domain (@uw.edu)
+- Authorization: cross-check authenticated email against an approved members list (Firestore collection or imported spreadsheet)
+- Unauthenticated users see a login page only
+- Role concept (future): officers vs members for posting permissions
+
+## Project Structure
+
+```
+app/                    # Next.js App Router pages
+  (auth)/               # Auth-gated layout group
+    announcements/      # Announcements page
+    members/            # Member registry
+    family-tree/        # Family tree (future)
+  login/                # Public login page
+  layout.tsx            # Root layout with MUI ThemeProvider
+  page.tsx              # Redirect to /announcements or /login
+components/             # Reusable React components
+lib/                    # Utilities, Firebase config, hooks
+  firebase.ts           # Firebase app initialization
+  auth.ts               # Auth helpers and context
+  firestore.ts          # Firestore helpers
+theme/                  # MUI theme configuration
+types/                  # TypeScript type definitions
+```
+
+## Conventions
+
+- Use `"use client"` only when components need interactivity; prefer Server Components
+- All Firebase client calls go through helpers in `lib/`
+- One component per file, named exports, PascalCase filenames for components
+- Use MUI's `useMuiDocs` MCP tool when referencing MUI component APIs
+- Keep pages thin — delegate logic to components and hooks
+
+## Future Considerations
+
+- Cloud Functions for server-side logic (Slack webhook, scheduled tasks)
+- Slack integration for announcements auto-sync
+- Officer role permissions for managing announcements and members
