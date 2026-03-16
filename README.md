@@ -1,6 +1,6 @@
 # AKPsi App
 
-An internal web app for the Alpha Kappa Psi (AKPsi) chapter at the University of Washington. Built to help members, officers, and pledges stay connected and organized.
+An internal web app for the Alpha Kappa Psi (AKPsi) chapter at the University of Washington. Built to help members, and officers stay connected and organized.
 
 ## Features
 
