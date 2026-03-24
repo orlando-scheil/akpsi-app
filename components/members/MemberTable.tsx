@@ -18,16 +18,16 @@ import { MemberRow } from "./MemberRow";
 interface Column {
   key: MemberSortKey;
   label: string;
-  minWidth?: number;
+  width: string;
 }
 
 const COLUMNS: Column[] = [
-  { key: "lastName", label: "Name", minWidth: 220 },
-  { key: "pledgeClass", label: "Pledge Class" },
-  { key: "major", label: "Major", minWidth: 160 },
-  { key: "graduationYear", label: "Grad Year" },
-  { key: "status", label: "Status" },
-  { key: "role", label: "Role" },
+  { key: "lastName", label: "Name", width: "30%" },
+  { key: "pledgeClass", label: "Pledge Class", width: "18%" },
+  { key: "major", label: "Major", width: "22%" },
+  { key: "graduationYear", label: "Grad Year", width: "10%" },
+  { key: "status", label: "Status", width: "10%" },
+  { key: "role", label: "Role", width: "10%" },
 ];
 
 interface MemberTableProps {
@@ -49,13 +49,13 @@ export function MemberTable({
       variant="outlined"
       sx={{ borderColor: "divider", overflowX: "auto" }}
     >
-      <Table>
+      <Table sx={{ tableLayout: "fixed" }}>
         <TableHead>
           <TableRow>
             {COLUMNS.map((col) => (
               <TableCell
                 key={col.key}
-                sx={{ minWidth: col.minWidth, fontWeight: 600 }}
+                sx={{ width: col.width, fontWeight: 600 }}
               >
                 <TableSortLabel
                   active={sortKey === col.key}
