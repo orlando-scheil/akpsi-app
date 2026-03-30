@@ -15,7 +15,7 @@ export function AnnouncementCard({ announcement }: AnnouncementCardProps) {
   return (
     <Card className="border transition-shadow hover:shadow-md">
       {/* Header: avatar + author + timestamp */}
-      <div className="flex items-center gap-3 px-6 pt-6 pb-0">
+      <div className="flex items-center gap-3 px-6 pt-2 pb-0">
         <Avatar className="h-10 w-10">
           <AvatarImage src={authorAvatar} alt={authorName} />
           <AvatarFallback className="bg-primary text-primary-foreground">
@@ -30,7 +30,7 @@ export function AnnouncementCard({ announcement }: AnnouncementCardProps) {
         </div>
       </div>
 
-      <CardContent className="pt-3">
+      <CardContent className="pt-3 px-6">
         <h3 className="text-base font-semibold mb-1">{title}</h3>
         <p className="text-sm text-muted-foreground whitespace-pre-line">
           {body}

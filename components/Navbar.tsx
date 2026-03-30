@@ -4,7 +4,7 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Megaphone, Users, GitBranch, LogOut, type LucideIcon } from "lucide-react";
+import { Megaphone, Users, GitBranch, Images, LogOut, type LucideIcon } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
@@ -12,6 +12,7 @@ import { useAuth } from "@/lib/auth";
 const NAV_ITEMS: { label: string; href: string; icon: LucideIcon }[] = [
   { label: "Announcements", href: "/announcements", icon: Megaphone },
   { label: "Directory", href: "/members", icon: Users },
+  { label: "Gallery", href: "/gallery", icon: Images },
   { label: "Family Tree", href: "/family-tree", icon: GitBranch },
 ];
 

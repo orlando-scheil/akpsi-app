@@ -1,6 +1,7 @@
-// Static sample data for announcements and members used while Firebase is not yet wired up.
+// Static sample data for announcements, members, and gallery used while Firebase is not yet wired up.
 import type { Announcement } from "@/types/announcement";
 import type { Member } from "@/types/member";
+import type { GalleryPhoto } from "@/types/gallery";
 
 function daysAgo(days: number, hours = 0): Date {
   const d = new Date();
@@ -383,5 +384,101 @@ export const MOCK_MEMBERS: Member[] = [
     joinedAt: new Date("2024-09-20"),
     lastActive: new Date(),
     isAdmin: false,
+  },
+];
+
+export const MOCK_GALLERY: GalleryPhoto[] = [
+  {
+    id: "g1",
+    imageUrl: "https://picsum.photos/seed/akpsi-formal/800/600",
+    caption: "Spring Formal 2025",
+    uploadedBy: "Sarah Kim",
+    uploadedAt: daysAgo(0, 3),
+    aspectRatio: 800 / 600,
+  },
+  {
+    id: "g2",
+    imageUrl: "https://picsum.photos/seed/akpsi-pledge/800/1050",
+    caption: "Epsilon pledge class welcome night",
+    uploadedBy: "Emily Nguyen",
+    uploadedAt: daysAgo(1),
+    aspectRatio: 800 / 1050,
+  },
+  {
+    id: "g3",
+    imageUrl: "https://picsum.photos/seed/akpsi-workshop/800/500",
+    caption: "Resume workshop",
+    uploadedBy: "James Tanaka",
+    uploadedAt: daysAgo(2),
+    aspectRatio: 800 / 500,
+  },
+  {
+    id: "g4",
+    imageUrl: "https://picsum.photos/seed/akpsi-bake/800/900",
+    caption: "Bake sale fundraiser",
+    uploadedBy: "Priya Patel",
+    uploadedAt: daysAgo(3),
+    aspectRatio: 800 / 900,
+  },
+  {
+    id: "g5",
+    imageUrl: "https://picsum.photos/seed/akpsi-social/800/550",
+    uploadedBy: "Marcus Chen",
+    uploadedAt: daysAgo(4),
+    aspectRatio: 800 / 550,
+  },
+  {
+    id: "g6",
+    imageUrl: "https://picsum.photos/seed/akpsi-rush/800/1100",
+    caption: "Rush week info night",
+    uploadedBy: "Sarah Kim",
+    uploadedAt: daysAgo(5),
+    aspectRatio: 800 / 1100,
+  },
+  {
+    id: "g7",
+    imageUrl: "https://picsum.photos/seed/akpsi-game/800/620",
+    caption: "Game night at the chapter house",
+    uploadedBy: "Jordan Williams",
+    uploadedAt: daysAgo(7),
+    aspectRatio: 800 / 620,
+  },
+  {
+    id: "g8",
+    imageUrl: "https://picsum.photos/seed/akpsi-meeting/800/480",
+    uploadedBy: "Ryan O'Brien",
+    uploadedAt: daysAgo(9),
+    aspectRatio: 800 / 480,
+  },
+  {
+    id: "g9",
+    imageUrl: "https://picsum.photos/seed/akpsi-retreat/800/950",
+    caption: "Winter leadership retreat",
+    uploadedBy: "Emily Nguyen",
+    uploadedAt: daysAgo(11),
+    aspectRatio: 800 / 950,
+  },
+  {
+    id: "g10",
+    imageUrl: "https://picsum.photos/seed/akpsi-panel/800/560",
+    caption: "Alumni career panel",
+    uploadedBy: "James Tanaka",
+    uploadedAt: daysAgo(14),
+    aspectRatio: 800 / 560,
+  },
+  {
+    id: "g11",
+    imageUrl: "https://picsum.photos/seed/akpsi-study/800/700",
+    uploadedBy: "Aisha Johnson",
+    uploadedAt: daysAgo(16),
+    aspectRatio: 800 / 700,
+  },
+  {
+    id: "g12",
+    imageUrl: "https://picsum.photos/seed/akpsi-charity/800/1000",
+    caption: "Charity walk for the community",
+    uploadedBy: "David Park",
+    uploadedAt: daysAgo(20),
+    aspectRatio: 800 / 1000,
   },
 ];

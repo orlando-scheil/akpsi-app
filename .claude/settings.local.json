@@ -7,7 +7,9 @@
       "Bash(plugin)",
       "Bash(commands \")",
       "Bash(npx:*)",
-      "Bash(npm uninstall:*)"
+      "Bash(npm uninstall:*)",
+      "Skill(typecheck)",
+      "Skill(review)"
     ]
   },
   "hooks": {
