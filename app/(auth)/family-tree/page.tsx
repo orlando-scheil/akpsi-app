@@ -1,11 +1,7 @@
-// Family Tree page — visual big/little relationships across pledge classes.
+// Family Tree page — interactive big/little relationship graph across pledge classes.
 // Protected by the (auth) layout; only visible to signed-in members.
+import { FamilyTreeGraph } from "@/components/family-tree/FamilyTreeGraph";
 
 export default function FamilyTreePage() {
-  return (
-    <div className="p-8">
-      <h1 className="text-2xl font-semibold">Family Tree</h1>
-      <p className="mt-2 text-muted-foreground">Coming soon.</p>
-    </div>
-  );
+  return <FamilyTreeGraph />;
 }

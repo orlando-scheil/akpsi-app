@@ -24,6 +24,12 @@ export interface Member {
   status: "active" | "alumni" | "inactive";
   role: string | null;
   familyId: string | null;
+  /** Display name for the family line (e.g. "The Thunder Family"). Future feature — null until set. */
+  familyName: string | null;
+  /** uid of this member's big. Null if they have no big or their big is unknown. */
+  bigUid: string | null;
+  /** Display name fallback for bigs not in the database (graduated, pre-app era, etc.) */
+  bigName: string | null;
   major: string;
   graduationYear: number;
   email: string;
