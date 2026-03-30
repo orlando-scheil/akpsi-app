@@ -1,17 +1,16 @@
 // Sortable member table with clickable column headers for the Directory page.
 "use client";
 
+import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import {
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
+  TableHeader,
   TableRow,
-  TableSortLabel,
-  Paper,
-  Typography,
-} from "@mui/material";
+} from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 import type { Member, MemberSortKey } from "@/types/member";
 import { MemberRow } from "./MemberRow";
 
@@ -44,38 +43,45 @@ export function MemberTable({
   onSortChange,
 }: MemberTableProps) {
   return (
-    <TableContainer
-      component={Paper}
-      variant="outlined"
-      sx={{ borderColor: "divider", overflowX: "auto" }}
-    >
-      <Table sx={{ tableLayout: "fixed" }}>
-        <TableHead>
+    <div className="rounded-md border overflow-x-auto">
+      <Table style={{ tableLayout: "fixed" }}>
+        <TableHeader>
           <TableRow>
-            {COLUMNS.map((col) => (
-              <TableCell
-                key={col.key}
-                sx={{ width: col.width, fontWeight: 600 }}
-              >
-                <TableSortLabel
-                  active={sortKey === col.key}
-                  direction={sortKey === col.key ? sortDirection : "asc"}
-                  onClick={() => onSortChange(col.key)}
-                >
-                  {col.label}
-                </TableSortLabel>
-              </TableCell>
-            ))}
+            {COLUMNS.map((col) => {
+              const active = sortKey === col.key;
+              const SortIcon = active
+                ? sortDirection === "asc"
+                  ? ArrowUp
+                  : ArrowDown
+                : ArrowUpDown;
+
+              return (
+                <TableHead key={col.key} style={{ width: col.width }}>
+                  <button
+                    onClick={() => onSortChange(col.key)}
+                    className={cn(
+                      "flex items-center gap-1 text-sm font-semibold",
+                      "hover:text-foreground transition-colors",
+                      active ? "text-foreground" : "text-muted-foreground"
+                    )}
+                  >
+                    {col.label}
+                    <SortIcon className="h-3.5 w-3.5" />
+                  </button>
+                </TableHead>
+              );
+            })}
           </TableRow>
-        </TableHead>
+        </TableHeader>
 
         <TableBody>
           {members.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={COLUMNS.length} sx={{ py: 6, textAlign: "center" }}>
-                <Typography color="text.secondary">
-                  No members found.
-                </Typography>
+              <TableCell
+                colSpan={COLUMNS.length}
+                className="py-10 text-center text-muted-foreground"
+              >
+                No members found.
               </TableCell>
             </TableRow>
           ) : (
@@ -85,6 +91,6 @@ export function MemberTable({
           )}
         </TableBody>
       </Table>
-    </TableContainer>
+    </div>
   );
 }

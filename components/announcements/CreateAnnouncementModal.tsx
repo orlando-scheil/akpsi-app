@@ -4,12 +4,14 @@
 import { useState } from "react";
 import {
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogActions,
-  TextField,
-  Button,
-} from "@mui/material";
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 
 interface CreateAnnouncementData {
   title: string;
@@ -59,52 +61,59 @@ export function CreateAnnouncementModal({
   }
 
   return (
-    <Dialog
-      open={open}
-      onClose={handleClose}
-      maxWidth="sm"
-      fullWidth
-      slotProps={{ paper: { sx: { borderRadius: 2 } } }}
-    >
-      <DialogTitle sx={{ fontWeight: 600 }}>New Announcement</DialogTitle>
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && handleClose()}>
+      <DialogContent className="sm:max-w-sm">
+        <DialogHeader>
+          <DialogTitle>New Announcement</DialogTitle>
+        </DialogHeader>
 
-      <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2.5, pt: "8px !important" }}>
-        <TextField
-          label="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          fullWidth
-          required
-          autoFocus
-        />
-        <TextField
-          label="What's the announcement?"
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          fullWidth
-          required
-          multiline
-          minRows={4}
-        />
-        <TextField
-          label="Image URL (optional, comma-separated for multiple)"
-          value={imageUrl}
-          onChange={(e) => setImageUrl(e.target.value)}
-          fullWidth
-          placeholder="https://example.com/image.jpg"
-        />
+        <div className="flex flex-col gap-4 py-2">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium">Title</label>
+            <Input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              autoFocus
+              required
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium">
+              What&apos;s the announcement?
+            </label>
+            <Textarea
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              rows={4}
+              required
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium">
+              Image URL{" "}
+              <span className="text-muted-foreground font-normal">
+                (optional, comma-separated)
+              </span>
+            </label>
+            <Input
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              placeholder="https://example.com/image.jpg"
+            />
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button variant="ghost" onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button onClick={handleSubmit} disabled={!canSubmit}>
+            Post
+          </Button>
+        </DialogFooter>
       </DialogContent>
-
-      <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button onClick={handleClose}>Cancel</Button>
-        <Button
-          onClick={handleSubmit}
-          variant="contained"
-          disabled={!canSubmit}
-        >
-          Post
-        </Button>
-      </DialogActions>
     </Dialog>
   );
 }

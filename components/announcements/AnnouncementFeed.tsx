@@ -2,8 +2,8 @@
 "use client";
 
 import { useState } from "react";
-import { Container, Typography, Button, Stack, Box } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { MOCK_ANNOUNCEMENTS } from "@/lib/mock-data";
 import type { Announcement } from "@/types/announcement";
@@ -36,37 +36,25 @@ export function AnnouncementFeed() {
   }
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mb: 3,
-        }}
-      >
-        <Typography variant="h4" component="h1">
-          Announcements
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => setModalOpen(true)}
-        >
+    <div className="max-w-2xl mx-auto px-4 py-8">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-semibold">Announcements</h1>
+        <Button onClick={() => setModalOpen(true)}>
+          <Plus className="h-4 w-4 mr-2" />
           New Post
         </Button>
-      </Box>
+      </div>
 
       {announcements.length === 0 ? (
-        <Typography color="text.secondary" sx={{ textAlign: "center", py: 8 }}>
+        <p className="text-center text-muted-foreground py-16">
           No announcements yet. Be the first to post!
-        </Typography>
+        </p>
       ) : (
-        <Stack spacing={3}>
+        <div className="flex flex-col gap-6">
           {announcements.map((a) => (
             <AnnouncementCard key={a.id} announcement={a} />
           ))}
-        </Stack>
+        </div>
       )}
 
       <CreateAnnouncementModal
@@ -74,6 +62,6 @@ export function AnnouncementFeed() {
         onClose={() => setModalOpen(false)}
         onSubmit={handleCreate}
       />
-    </Container>
+    </div>
   );
 }

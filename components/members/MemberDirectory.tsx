@@ -2,14 +2,8 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import {
-  Container,
-  Typography,
-  TextField,
-  InputAdornment,
-  Box,
-} from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
+import { Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { MOCK_MEMBERS } from "@/lib/mock-data";
 import { filterMembers, sortMembers } from "@/lib/search-members";
 import type { MemberSortKey } from "@/types/member";
@@ -35,33 +29,28 @@ export function MemberDirectory() {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Typography variant="h4" component="h1" sx={{ mb: 3 }}>
-        Directory
-      </Typography>
+    <div
+      className="py-8"
+      style={{
+        paddingLeft: "max(1rem, calc(50vw - 40rem))",
+        paddingRight: "max(1rem, calc(50vw - 40rem))",
+      }}
+    >
+      <h1 className="text-2xl font-semibold mb-6">Directory</h1>
 
-      <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
-        <TextField
+      <div className="relative mb-3">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          className="pl-9"
           placeholder="Search by name, major, pledge class, year..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          fullWidth
-          size="small"
-          slotProps={{
-            input: {
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon color="action" />
-                </InputAdornment>
-              ),
-            },
-          }}
         />
-      </Box>
+      </div>
 
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+      <p className="text-sm text-muted-foreground mb-3">
         Showing {processedMembers.length} of {MOCK_MEMBERS.length} members
-      </Typography>
+      </p>
 
       <MemberTable
         members={processedMembers}
@@ -69,6 +58,6 @@ export function MemberDirectory() {
         sortDirection={sortDirection}
         onSortChange={handleSortChange}
       />
-    </Container>
+    </div>
   );
 }

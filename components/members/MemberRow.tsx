@@ -1,13 +1,14 @@
 // Single row in the member directory table — avatar, name, pledge class, major, status, and role.
-"use client";
-
-import { TableRow, TableCell, Avatar, Chip, Typography, Box } from "@mui/material";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { TableRow, TableCell } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 import type { Member } from "@/types/member";
 
-const STATUS_COLORS: Record<Member["status"], { bg: string; text: string }> = {
-  active: { bg: "#e8f5e9", text: "#2e7d32" },
-  alumni: { bg: "#e3f2fd", text: "#1565c0" },
-  inactive: { bg: "#fff3e0", text: "#e65100" },
+const STATUS_CLASSES: Record<Member["status"], string> = {
+  active: "bg-green-100 text-green-800 hover:bg-green-100",
+  alumni: "bg-blue-100 text-blue-800 hover:bg-blue-100",
+  inactive: "bg-orange-100 text-orange-800 hover:bg-orange-100",
 };
 
 interface MemberRowProps {
@@ -16,63 +17,64 @@ interface MemberRowProps {
 
 export function MemberRow({ member }: MemberRowProps) {
   const displayName = member.preferredName ?? member.firstName;
-  const statusColor = STATUS_COLORS[member.status];
 
   return (
-    <TableRow sx={{ "&:hover": { bgcolor: "action.hover" } }}>
+    <TableRow>
       <TableCell>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-          <Avatar
-            src={member.profilePhotoUrl ?? undefined}
-            sx={{ width: 36, height: 36, bgcolor: "primary.main", fontSize: "0.875rem" }}
-          >
-            {member.firstName.charAt(0)}
-            {member.lastName.charAt(0)}
+        <div className="flex items-center gap-3">
+          <Avatar className="h-9 w-9">
+            <AvatarImage
+              src={member.profilePhotoUrl ?? undefined}
+              alt={`${member.firstName} ${member.lastName}`}
+            />
+            <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+              {member.firstName.charAt(0)}
+              {member.lastName.charAt(0)}
+            </AvatarFallback>
           </Avatar>
-          <Box>
-            <Typography variant="body2" fontWeight={600}>
+          <div>
+            <span className="text-sm font-semibold block">
               {displayName} {member.lastName}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              {member.email}
-            </Typography>
-          </Box>
-        </Box>
+            </span>
+            <span className="text-xs text-muted-foreground">{member.email}</span>
+          </div>
+        </div>
       </TableCell>
 
       <TableCell>
-        <Chip
-          label={`${member.pledgeClassQuarter} '${String(member.pledgeClassYear).slice(-2)} · ${member.pledgeClass}`}
-          variant="outlined"
-          size="small"
-        />
+        <Badge variant="outline">
+          {`${member.pledgeClassQuarter} '${String(member.pledgeClassYear).slice(-2)} · ${member.pledgeClass}`}
+        </Badge>
       </TableCell>
 
       <TableCell>
-        <Typography variant="body2">{member.major}</Typography>
+        <span className="text-sm">{member.major}</span>
       </TableCell>
 
       <TableCell>
-        <Typography variant="body2">{member.graduationYear}</Typography>
+        <span className="text-sm">{member.graduationYear}</span>
       </TableCell>
 
       <TableCell>
-        <Chip
-          label={member.status.charAt(0).toUpperCase() + member.status.slice(1)}
-          size="small"
-          sx={{
-            bgcolor: statusColor.bg,
-            color: statusColor.text,
-            fontWeight: 600,
-            fontSize: "0.75rem",
-          }}
-        />
+        <Badge
+          className={cn(
+            "text-xs font-semibold border-0",
+            STATUS_CLASSES[member.status]
+          )}
+        >
+          {member.status.charAt(0).toUpperCase() + member.status.slice(1)}
+        </Badge>
       </TableCell>
 
       <TableCell>
-        <Typography variant="body2" color={member.role ? "text.primary" : "text.disabled"}>
+        <span
+          className={cn(
+            "text-sm",
+            member.role ? "text-foreground" : "text-muted-foreground"
+          )}
+        >
           {member.role ?? "—"}
-        </Typography>
+        </span>
       </TableCell>
     </TableRow>
   );

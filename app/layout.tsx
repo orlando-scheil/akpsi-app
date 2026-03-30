@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
-import "@fontsource/roboto/300.css";
-import "@fontsource/roboto/400.css";
-import "@fontsource/roboto/500.css";
-import "@fontsource/roboto/700.css";
+import { Roboto } from "next/font/google";
 import "./globals.css";
-import ThemeRegistry from "@/components/ThemeRegistry";
-import { Geist } from "next/font/google";
-import { cn } from "@/lib/utils";
+import { AuthProvider } from "@/lib/auth";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const roboto = Roboto({
+  weight: ["300", "400", "500", "700"],
+  subsets: ["latin"],
+  variable: "--font-sans",
+});
 
 export const metadata: Metadata = {
   title: "AKPsi UW",
@@ -22,9 +22,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("font-sans", geist.variable)}>
+    <html lang="en" className={roboto.variable}>
       <body>
-        <ThemeRegistry>{children}</ThemeRegistry>
+        <AuthProvider>
+          <TooltipProvider>{children}</TooltipProvider>
+        </AuthProvider>
       </body>
     </html>
   );

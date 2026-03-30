@@ -5,7 +5,9 @@
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "Bash(plugin)",
-      "Bash(commands \")"
+      "Bash(commands \")",
+      "Bash(npx:*)",
+      "Bash(npm uninstall:*)"
     ]
   },
   "hooks": {

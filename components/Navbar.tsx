@@ -4,25 +4,15 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Button,
-  Box,
-  IconButton,
-  Tooltip,
-} from "@mui/material";
-import LogoutIcon from "@mui/icons-material/Logout";
-import CampaignIcon from "@mui/icons-material/Campaign";
-import PeopleIcon from "@mui/icons-material/People";
-import AccountTreeIcon from "@mui/icons-material/AccountTree";
+import { Megaphone, Users, GitBranch, LogOut, type LucideIcon } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
 
-const NAV_ITEMS = [
-  { label: "Announcements", href: "/announcements", icon: CampaignIcon },
-  { label: "Directory", href: "/members", icon: PeopleIcon },
-  { label: "Family Tree", href: "/family-tree", icon: AccountTreeIcon },
+const NAV_ITEMS: { label: string; href: string; icon: LucideIcon }[] = [
+  { label: "Announcements", href: "/announcements", icon: Megaphone },
+  { label: "Directory", href: "/members", icon: Users },
+  { label: "Family Tree", href: "/family-tree", icon: GitBranch },
 ];
 
 export default function Navbar() {
@@ -30,59 +20,51 @@ export default function Navbar() {
   const { signOut } = useAuth();
 
   return (
-    <AppBar position="sticky">
-      <Toolbar sx={{ position: "relative" }}>
-        <Typography
-          variant="h6"
-          component={Link}
+    <header className="sticky top-0 z-50 bg-primary text-primary-foreground shadow-md">
+      <div className="relative flex h-14 items-center px-4">
+        <Link
           href="/announcements"
-          sx={{
-            color: "inherit",
-            textDecoration: "none",
-            fontWeight: 700,
-          }}
+          className="text-lg font-bold text-primary-foreground no-underline"
         >
           AKPsi
-        </Typography>
+        </Link>
 
-        <Box
-          className="flex gap-1"
-          sx={{
-            position: "absolute",
-            left: "50%",
-            transform: "translateX(-50%)",
-          }}
-        >
+        {/* Centered nav items */}
+        <nav className="absolute left-1/2 -translate-x-1/2 flex gap-1">
           {NAV_ITEMS.map(({ label, href, icon: Icon }) => {
             const active = pathname.startsWith(href);
             return (
-              <Button
+              <Link
                 key={href}
-                component={Link}
                 href={href}
-                startIcon={<Icon />}
-                sx={{
-                  color: "inherit",
-                  opacity: active ? 1 : 0.7,
-                  borderBottom: active ? "2px solid white" : "2px solid transparent",
-                  borderRadius: 0,
-                  "&:hover": { opacity: 1 },
-                }}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-none",
+                  "border-b-2 transition-opacity text-primary-foreground no-underline",
+                  active
+                    ? "opacity-100 border-white"
+                    : "opacity-70 border-transparent hover:opacity-100"
+                )}
               >
+                <Icon className="h-4 w-4" />
                 {label}
-              </Button>
+              </Link>
             );
           })}
-        </Box>
+        </nav>
 
-        <Box sx={{ flexGrow: 1 }} />
-
-        <Tooltip title="Sign out">
-          <IconButton color="inherit" onClick={signOut} aria-label="Sign out">
-            <LogoutIcon />
-          </IconButton>
+        {/* Right side spacer + sign out */}
+        <div className="flex-1" />
+        <Tooltip>
+          <TooltipTrigger
+            onClick={signOut}
+            aria-label="Sign out"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-md text-primary-foreground hover:bg-primary/80 transition-colors"
+          >
+            <LogOut className="h-5 w-5" />
+          </TooltipTrigger>
+          <TooltipContent>Sign out</TooltipContent>
         </Tooltip>
-      </Toolbar>
-    </AppBar>
+      </div>
+    </header>
   );
 }

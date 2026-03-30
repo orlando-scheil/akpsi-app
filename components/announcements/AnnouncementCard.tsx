@@ -1,15 +1,6 @@
 // Single announcement card — displays author, timestamp, body text, and optional images.
-"use client";
-
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardMedia,
-  Avatar,
-  Typography,
-  Box,
-} from "@mui/material";
+import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import type { Announcement } from "@/types/announcement";
 import { formatRelativeTime } from "@/lib/utils";
 
@@ -22,58 +13,51 @@ export function AnnouncementCard({ announcement }: AnnouncementCardProps) {
     announcement;
 
   return (
-    <Card
-      variant="outlined"
-      sx={{
-        borderColor: "divider",
-        "&:hover": { boxShadow: 2 },
-        transition: "box-shadow 0.2s ease-in-out",
-      }}
-    >
-      <CardHeader
-        avatar={
-          <Avatar src={authorAvatar} sx={{ bgcolor: "primary.main" }}>
+    <Card className="border transition-shadow hover:shadow-md">
+      {/* Header: avatar + author + timestamp */}
+      <div className="flex items-center gap-3 px-6 pt-6 pb-0">
+        <Avatar className="h-10 w-10">
+          <AvatarImage src={authorAvatar} alt={authorName} />
+          <AvatarFallback className="bg-primary text-primary-foreground">
             {authorName.charAt(0)}
-          </Avatar>
-        }
-        title={authorName}
-        subheader={formatRelativeTime(createdAt)}
-        titleTypographyProps={{ fontWeight: 600, fontSize: "0.95rem" }}
-        subheaderTypographyProps={{ fontSize: "0.8rem" }}
-      />
+          </AvatarFallback>
+        </Avatar>
+        <div>
+          <p className="text-sm font-semibold leading-tight">{authorName}</p>
+          <p className="text-xs text-muted-foreground">
+            {formatRelativeTime(createdAt)}
+          </p>
+        </div>
+      </div>
 
-      <CardContent sx={{ pt: 0 }}>
-        <Typography variant="h6" gutterBottom>
-          {title}
-        </Typography>
-        <Typography variant="body1" color="text.secondary" sx={{ whiteSpace: "pre-line" }}>
+      <CardContent className="pt-3">
+        <h3 className="text-base font-semibold mb-1">{title}</h3>
+        <p className="text-sm text-muted-foreground whitespace-pre-line">
           {body}
-        </Typography>
+        </p>
       </CardContent>
 
       {imageUrls.length > 0 && (
-        <Box sx={{ px: 2, pb: 2 }}>
+        <div className="px-6 pb-6">
           {imageUrls.length === 1 ? (
-            <CardMedia
-              component="img"
-              image={imageUrls[0]}
+            <img
+              src={imageUrls[0]}
               alt={`Image for ${title}`}
-              sx={{ borderRadius: 1, maxHeight: 400, objectFit: "cover" }}
+              className="w-full rounded-md max-h-96 object-cover"
             />
           ) : (
-            <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1 }}>
+            <div className="grid grid-cols-2 gap-2">
               {imageUrls.map((url, i) => (
-                <CardMedia
+                <img
                   key={i}
-                  component="img"
-                  image={url}
+                  src={url}
                   alt={`Image ${i + 1} for ${title}`}
-                  sx={{ borderRadius: 1, height: 200, objectFit: "cover" }}
+                  className="w-full rounded-md h-48 object-cover"
                 />
               ))}
-            </Box>
+            </div>
           )}
-        </Box>
+        </div>
       )}
     </Card>
   );
