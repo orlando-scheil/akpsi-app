@@ -2,7 +2,7 @@
 // Uses React Flow for rendering; nodes laid out in generational pledge class rows.
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import {
   ReactFlow,
   Controls,
@@ -12,8 +12,8 @@ import {
   type NodeMouseHandler,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import { getMembers } from "@/lib/firestore";
 import { buildFamilyTree } from "@/lib/build-family-tree";
-import { MOCK_MEMBERS } from "@/lib/mock-data";
 import { MemberNode } from "./MemberNode";
 import { GhostNode } from "./GhostNode";
 import { MemberDetailPanel } from "./MemberDetailPanel";
@@ -26,9 +26,19 @@ const nodeTypes = {
 };
 
 export function FamilyTreeGraph() {
+  const [members, setMembers] = useState<Member[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
 
-  const { nodes, edges } = useMemo(() => buildFamilyTree(MOCK_MEMBERS), []);
+  useEffect(() => {
+    getMembers()
+      .then(setMembers)
+      .catch((err: Error) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const { nodes, edges } = useMemo(() => buildFamilyTree(members), [members]);
 
   const onNodeClick: NodeMouseHandler<Node> = useCallback((_event, node) => {
     if (node.type === "memberNode") {
@@ -37,6 +47,22 @@ export function FamilyTreeGraph() {
   }, []);
 
   const onPaneClick = useCallback(() => setSelectedMember(null), []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center w-full h-[calc(100vh-56px)]">
+        <p className="text-muted-foreground">Loading family tree…</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center w-full h-[calc(100vh-56px)]">
+        <p className="text-destructive">Failed to load members: {error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="relative w-full h-[calc(100vh-56px)]">
@@ -61,7 +87,7 @@ export function FamilyTreeGraph() {
       {selectedMember && (
         <MemberDetailPanel
           member={selectedMember}
-          members={MOCK_MEMBERS}
+          members={members}
           onClose={() => setSelectedMember(null)}
         />
       )}

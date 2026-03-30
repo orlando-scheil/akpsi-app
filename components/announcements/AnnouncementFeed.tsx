@@ -1,38 +1,58 @@
 // Main orchestrator for the Announcements page — manages the feed list and new-post modal.
+// Subscribes to Firestore in real time; uploads images to Storage before writing the doc.
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
-import { MOCK_ANNOUNCEMENTS } from "@/lib/mock-data";
+import { subscribeToAnnouncements, createAnnouncement } from "@/lib/firestore";
+import { uploadAnnouncementImages } from "@/lib/storage";
 import type { Announcement } from "@/types/announcement";
 import { AnnouncementCard } from "./AnnouncementCard";
 import { CreateAnnouncementModal } from "./CreateAnnouncementModal";
 
 export function AnnouncementFeed() {
   const { user } = useAuth();
-  const [announcements, setAnnouncements] =
-    useState<Announcement[]>(MOCK_ANNOUNCEMENTS);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  function handleCreate(data: {
+  useEffect(() => {
+    const unsubscribe = subscribeToAnnouncements(
+      (data) => {
+        setAnnouncements(data);
+        setLoading(false);
+      },
+      (err) => {
+        setError(err.message);
+        setLoading(false);
+      }
+    );
+    return unsubscribe;
+  }, []);
+
+  async function handleCreate(data: {
     title: string;
     body: string;
-    imageUrls: string[];
-  }) {
-    const newAnnouncement: Announcement = {
-      id: crypto.randomUUID(),
+    files: File[];
+  }): Promise<void> {
+    // Use a temp ID for the storage path so we can upload before creating the doc
+    const tempId = crypto.randomUUID();
+    const imageUrls =
+      data.files.length > 0
+        ? await uploadAnnouncementImages(tempId, data.files)
+        : [];
+
+    await createAnnouncement({
       title: data.title,
       body: data.body,
-      imageUrls: data.imageUrls,
+      imageUrls,
       authorId: user?.uid ?? "unknown",
       authorName: user?.displayName ?? "Unknown",
       authorAvatar: user?.photoURL ?? undefined,
-      createdAt: new Date(),
-    };
-
-    setAnnouncements((prev) => [newAnnouncement, ...prev]);
+    });
   }
 
   return (
@@ -45,11 +65,23 @@ export function AnnouncementFeed() {
         </Button>
       </div>
 
-      {announcements.length === 0 ? (
+      {loading && (
+        <p className="text-center text-muted-foreground py-16">Loading...</p>
+      )}
+
+      {error && (
+        <p className="text-center text-destructive py-16">
+          Failed to load announcements: {error}
+        </p>
+      )}
+
+      {!loading && !error && announcements.length === 0 && (
         <p className="text-center text-muted-foreground py-16">
           No announcements yet. Be the first to post!
         </p>
-      ) : (
+      )}
+
+      {!loading && !error && announcements.length > 0 && (
         <div className="flex flex-col gap-6">
           {announcements.map((a) => (
             <AnnouncementCard key={a.id} announcement={a} />

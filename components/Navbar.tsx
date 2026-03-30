@@ -1,11 +1,18 @@
 // Top navigation bar — shown on all authenticated pages.
-// Contains links to main sections and a sign-out button.
+// Contains links to main sections and a user avatar dropdown for profile + sign-out.
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Megaphone, Users, GitBranch, Images, LogOut, type LucideIcon } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Megaphone, Users, GitBranch, Images, LogOut, User, type LucideIcon } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
 
@@ -18,7 +25,18 @@ const NAV_ITEMS: { label: string; href: string; icon: LucideIcon }[] = [
 
 export default function Navbar() {
   const pathname = usePathname();
-  const { signOut } = useAuth();
+  const router = useRouter();
+  const { user, member, signOut } = useAuth();
+
+  const displayName = member
+    ? (member.preferredName ?? member.firstName)
+    : (user?.displayName?.split(" ")[0] ?? "");
+
+  const avatarUrl = member?.profilePhotoUrl ?? user?.photoURL ?? undefined;
+
+  const initials = member
+    ? `${member.firstName.charAt(0)}${member.lastName.charAt(0)}`
+    : (user?.displayName?.charAt(0) ?? "?");
 
   return (
     <header className="sticky top-0 z-50 bg-primary text-primary-foreground shadow-md">
@@ -53,18 +71,42 @@ export default function Navbar() {
           })}
         </nav>
 
-        {/* Right side spacer + sign out */}
+        {/* Right side: avatar dropdown */}
         <div className="flex-1" />
-        <Tooltip>
-          <TooltipTrigger
-            onClick={signOut}
-            aria-label="Sign out"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-md text-primary-foreground hover:bg-primary/80 transition-colors"
-          >
-            <LogOut className="h-5 w-5" />
-          </TooltipTrigger>
-          <TooltipContent>Sign out</TooltipContent>
-        </Tooltip>
+        <DropdownMenu>
+          <DropdownMenuTrigger className="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-primary/80 transition-colors outline-none">
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={avatarUrl} alt={displayName} />
+              <AvatarFallback className="bg-white/20 text-primary-foreground text-xs font-semibold">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+            {displayName && (
+              <span className="text-sm font-medium text-primary-foreground hidden sm:block">
+                {displayName}
+              </span>
+            )}
+          </DropdownMenuTrigger>
+
+          <DropdownMenuContent align="end" className="w-44">
+            <DropdownMenuItem
+              onClick={() => router.push("/profile")}
+              className="flex items-center gap-2 cursor-pointer"
+            >
+              <User className="h-4 w-4" />
+              My Profile
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={signOut}
+              variant="destructive"
+              className="flex items-center gap-2 cursor-pointer"
+            >
+              <LogOut className="h-4 w-4" />
+              Sign out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   );

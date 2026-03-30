@@ -2,6 +2,8 @@
 export interface GalleryPhoto {
   id: string;
   imageUrl: string;
+  /** Full Firebase Storage path — used to delete the file when the doc is deleted. */
+  storagePath?: string;
   caption?: string;
   uploadedBy: string;
   uploadedAt: Date;

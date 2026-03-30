@@ -38,7 +38,7 @@ export function AnnouncementCard({ announcement }: AnnouncementCardProps) {
       </CardContent>
 
       {imageUrls.length > 0 && (
-        <div className="px-6 pb-6">
+        <div className="px-6 pb-2">
           {imageUrls.length === 1 ? (
             <img
               src={imageUrls[0]}
