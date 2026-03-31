@@ -3,7 +3,7 @@
 
 export const theme = {
   // Core brand
-  primary: "#4B2E83",         // Deep purple — navbar, card accents, buttons
+  primary: "#052F5F",         // Deep purple — navbar, card accents, buttons
   primaryDark: "#2d1a5c",     // Deeper purple — headings, text emphasis
   primaryMuted: "rgba(75, 46, 131, 0.5)", // Muted purple — eyebrow labels
 
@@ -16,7 +16,7 @@ export const theme = {
   bgCardHover: "#fafafa",
 
   // Text
-  textHeading: "#2d1a5c",     // Used for page titles
+  textHeading: "#052F5F",     // Used for page titles
   textPrimary: "#111827",     // Body headings / author names
   textSecondary: "#6B7280",   // Body copy / timestamps
   textDim: "#9CA3AF",         // Placeholders / very muted text
@@ -30,8 +30,8 @@ export const theme = {
   bgDots: "#dde3ec",          // Background dot grid color in the React Flow canvas
 
   // Status badges (member status indicators)
-  statusActive:   { bg: "#dcfce7", text: "#166534" },
-  statusAlumni:   { bg: "#dbeafe", text: "#1d4ed8" },
+  statusActive: { bg: "#dcfce7", text: "#166534" },
+  statusAlumni: { bg: "#dbeafe", text: "#1d4ed8" },
   statusInactive: { bg: "#ffedd5", text: "#9a3412" },
 } as const;
 
