@@ -3,6 +3,7 @@
 import { Handle, Position, type NodeProps } from "@xyflow/react";
 import { cn } from "@/lib/utils";
 import type { Member } from "@/types/member";
+import { theme } from "@/lib/theme";
 
 export interface MemberNodeData {
   member: Member;
@@ -23,7 +24,6 @@ export function MemberNode({ data, selected }: NodeProps) {
         className={cn(
           "bg-white rounded-xl shadow-sm border-2 px-3 py-2.5 flex items-center gap-2.5 cursor-pointer transition-shadow",
           "hover:shadow-md",
-          selected ? "ring-2 ring-offset-2" : "",
           isAlumni ? "opacity-75" : ""
         )}
         style={{
@@ -48,15 +48,21 @@ export function MemberNode({ data, selected }: NodeProps) {
         </div>
 
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-semibold truncate leading-tight">
+          <p className="text-xs font-semibold truncate leading-tight" style={{ color: theme.textPrimary }}>
             {displayName} {member.lastName}
           </p>
-          <p className="text-[10px] text-muted-foreground truncate leading-tight mt-0.5">
+          <p className="text-[10px] truncate leading-tight mt-0.5" style={{ color: theme.textSecondary }}>
             {member.pledgeClassQuarter} &apos;{String(member.pledgeClassYear).slice(-2)}
             {member.role ? ` · ${member.role}` : ""}
           </p>
           {isAlumni && (
-            <span className="inline-block text-[9px] bg-blue-50 text-blue-600 border border-blue-200 px-1 rounded leading-tight mt-0.5">
+            <span
+              className="inline-block text-[9px] px-1 rounded leading-tight mt-0.5 font-semibold"
+              style={{
+                background: theme.statusAlumni.bg,
+                color: theme.statusAlumni.text,
+              }}
+            >
               Alumni
             </span>
           )}

@@ -59,17 +59,17 @@ html::-webkit-scrollbar {
 }
 
 :root {
-  /* AKPsi brand: navy #002855, gold #C5B358 */
+  /* AKPsi brand colors — keep in sync with lib/theme.ts */
   --background: oklch(0.98 0.003 240);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.22 0.09 254);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.76 0.12 84);
-  --secondary-foreground: oklch(0.145 0 0);
+  --primary: #4B2E83;
+  --primary-foreground: #ffffff;
+  --secondary: #E8C060;
+  --secondary-foreground: #2d1a5c;
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
   --accent: oklch(0.97 0 0);

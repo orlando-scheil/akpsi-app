@@ -9,7 +9,9 @@
       "Bash(npx:*)",
       "Bash(npm uninstall:*)",
       "Skill(typecheck)",
-      "Skill(review)"
+      "Skill(review)",
+      "Bash(ls:*)",
+      "Bash(cat:*)"
     ]
   },
   "hooks": {

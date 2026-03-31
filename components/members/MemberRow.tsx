@@ -2,13 +2,13 @@
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { TableRow, TableCell } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
 import type { Member } from "@/types/member";
+import { theme } from "@/lib/theme";
 
-const STATUS_CLASSES: Record<Member["status"], string> = {
-  active: "bg-green-100 text-green-800 hover:bg-green-100",
-  alumni: "bg-blue-100 text-blue-800 hover:bg-blue-100",
-  inactive: "bg-orange-100 text-orange-800 hover:bg-orange-100",
+const STATUS_STYLES: Record<Member["status"], { bg: string; text: string }> = {
+  active:   theme.statusActive,
+  alumni:   theme.statusAlumni,
+  inactive: theme.statusInactive,
 };
 
 interface MemberRowProps {
@@ -17,61 +17,77 @@ interface MemberRowProps {
 
 export function MemberRow({ member }: MemberRowProps) {
   const displayName = member.preferredName ?? member.firstName;
+  const statusStyle = STATUS_STYLES[member.status];
 
   return (
     <TableRow>
       <TableCell>
         <div className="flex items-center gap-3">
-          <Avatar className="h-9 w-9">
+          <Avatar
+            className="h-9 w-9"
+            style={{ outline: `2px solid ${theme.primary}20`, outlineOffset: "1px" }}
+          >
             <AvatarImage
               src={member.profilePhotoUrl ?? undefined}
               alt={`${member.firstName} ${member.lastName}`}
             />
-            <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+            <AvatarFallback
+              className="text-xs font-bold"
+              style={{ background: theme.primary, color: "white" }}
+            >
               {member.firstName.charAt(0)}
               {member.lastName.charAt(0)}
             </AvatarFallback>
           </Avatar>
           <div>
-            <span className="text-sm font-semibold block">
+            <span
+              className="text-sm font-semibold block"
+              style={{ color: theme.textPrimary }}
+            >
               {displayName} {member.lastName}
             </span>
-            <span className="text-xs text-muted-foreground">{member.email}</span>
+            <span className="text-xs" style={{ color: theme.textSecondary }}>
+              {member.email}
+            </span>
           </div>
         </div>
       </TableCell>
 
       <TableCell>
-        <Badge variant="outline">
+        <Badge
+          variant="outline"
+          className="text-xs"
+          style={{ borderColor: theme.border, color: theme.textSecondary }}
+        >
           {`${member.pledgeClassQuarter} '${String(member.pledgeClassYear).slice(-2)} · ${member.pledgeClass}`}
         </Badge>
       </TableCell>
 
       <TableCell>
-        <span className="text-sm">{member.major}</span>
+        <span className="text-sm" style={{ color: theme.textPrimary }}>
+          {member.major}
+        </span>
       </TableCell>
 
       <TableCell>
-        <span className="text-sm">{member.graduationYear}</span>
-      </TableCell>
-
-      <TableCell>
-        <Badge
-          className={cn(
-            "text-xs font-semibold border-0",
-            STATUS_CLASSES[member.status]
-          )}
-        >
-          {member.status.charAt(0).toUpperCase() + member.status.slice(1)}
-        </Badge>
+        <span className="text-sm" style={{ color: theme.textPrimary }}>
+          {member.graduationYear}
+        </span>
       </TableCell>
 
       <TableCell>
         <span
-          className={cn(
-            "text-sm",
-            member.role ? "text-foreground" : "text-muted-foreground"
-          )}
+          className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold"
+          style={{ background: statusStyle.bg, color: statusStyle.text }}
+        >
+          {member.status.charAt(0).toUpperCase() + member.status.slice(1)}
+        </span>
+      </TableCell>
+
+      <TableCell>
+        <span
+          className="text-sm"
+          style={{ color: member.role ? theme.textPrimary : theme.textDim }}
         >
           {member.role ?? "—"}
         </span>

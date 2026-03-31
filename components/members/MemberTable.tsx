@@ -10,8 +10,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
 import type { Member, MemberSortKey } from "@/types/member";
+import { theme } from "@/lib/theme";
 import { MemberRow } from "./MemberRow";
 
 interface Column {
@@ -43,10 +43,10 @@ export function MemberTable({
   onSortChange,
 }: MemberTableProps) {
   return (
-    <div className="rounded-md border overflow-x-auto">
+    <div className="rounded-xl border overflow-x-auto" style={{ borderColor: theme.border }}>
       <Table style={{ tableLayout: "fixed" }}>
         <TableHeader>
-          <TableRow>
+          <TableRow style={{ borderBottomColor: theme.border }}>
             {COLUMNS.map((col) => {
               const active = sortKey === col.key;
               const SortIcon = active
@@ -59,14 +59,16 @@ export function MemberTable({
                 <TableHead key={col.key} style={{ width: col.width }}>
                   <button
                     onClick={() => onSortChange(col.key)}
-                    className={cn(
-                      "flex items-center gap-1 text-sm font-semibold",
-                      "hover:text-foreground transition-colors",
-                      active ? "text-foreground" : "text-muted-foreground"
-                    )}
+                    className="flex items-center gap-1 text-sm font-semibold transition-colors"
+                    style={{
+                      color: active ? theme.primary : theme.textSecondary,
+                    }}
                   >
                     {col.label}
-                    <SortIcon className="h-3.5 w-3.5" />
+                    <SortIcon
+                      className="h-3.5 w-3.5"
+                      style={{ color: active ? theme.primary : theme.textDim }}
+                    />
                   </button>
                 </TableHead>
               );
@@ -79,7 +81,8 @@ export function MemberTable({
             <TableRow>
               <TableCell
                 colSpan={COLUMNS.length}
-                className="py-10 text-center text-muted-foreground"
+                className="py-10 text-center text-sm"
+                style={{ color: theme.textSecondary }}
               >
                 No members found.
               </TableCell>

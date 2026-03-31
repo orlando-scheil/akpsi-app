@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { theme } from "@/lib/theme";
 
 interface AddPhotoData {
   file: File;
@@ -74,12 +75,24 @@ export function AddPhotoModal({ open, onClose, onSubmit }: AddPhotoModalProps) {
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && handleClose()}>
       <DialogContent className="sm:max-w-sm">
-        <DialogHeader>
-          <DialogTitle>Add Photo</DialogTitle>
+        <DialogHeader className="pb-0">
+          <DialogTitle
+            className="text-xl leading-tight"
+            style={{
+              fontFamily: "var(--font-display, serif)",
+              fontWeight: 700,
+              color: theme.textHeading,
+            }}
+          >
+            Add Photo
+          </DialogTitle>
+          <div
+            className="h-[2px] w-8 rounded-full mt-2"
+            style={{ background: theme.gold }}
+          />
         </DialogHeader>
 
-        <div className="flex flex-col gap-4 py-2">
-          {/* File picker / preview */}
+        <div className="flex flex-col gap-4 pt-2">
           <input
             ref={fileInputRef}
             type="file"
@@ -108,7 +121,20 @@ export function AddPhotoModal({ open, onClose, onSubmit }: AddPhotoModalProps) {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="flex flex-col items-center justify-center gap-2 h-40 rounded-lg border-2 border-dashed border-muted-foreground/30 hover:border-muted-foreground/60 transition-colors text-muted-foreground"
+              className="flex flex-col items-center justify-center gap-2 h-40 rounded-lg border-2 border-dashed transition-colors"
+              style={{
+                borderColor: theme.border,
+                color: theme.textSecondary,
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.borderColor =
+                  `${theme.primary}50`;
+                (e.currentTarget as HTMLButtonElement).style.color = theme.primary;
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = theme.border;
+                (e.currentTarget as HTMLButtonElement).style.color = theme.textSecondary;
+              }}
               disabled={submitting}
             >
               <ImagePlus className="h-8 w-8" />
@@ -117,9 +143,18 @@ export function AddPhotoModal({ open, onClose, onSubmit }: AddPhotoModalProps) {
           )}
 
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="photo-caption" className="text-sm font-medium">
+            <label
+              htmlFor="photo-caption"
+              className="text-[10px] font-bold tracking-[0.18em] uppercase"
+              style={{ color: theme.textSecondary }}
+            >
               Caption{" "}
-              <span className="text-muted-foreground font-normal">(optional)</span>
+              <span
+                className="normal-case font-normal tracking-normal"
+                style={{ color: theme.textDim }}
+              >
+                (optional)
+              </span>
             </label>
             <Textarea
               id="photo-caption"
@@ -128,6 +163,7 @@ export function AddPhotoModal({ open, onClose, onSubmit }: AddPhotoModalProps) {
               placeholder="What's happening in this photo?"
               rows={2}
               disabled={submitting}
+              className="resize-none"
             />
           </div>
         </div>
@@ -136,7 +172,12 @@ export function AddPhotoModal({ open, onClose, onSubmit }: AddPhotoModalProps) {
           <Button variant="ghost" onClick={handleClose} disabled={submitting}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={!file || submitting}>
+          <Button
+            onClick={handleSubmit}
+            disabled={!file || submitting}
+            className="font-semibold transition-opacity hover:opacity-90"
+            style={{ background: theme.primary, color: "white", border: "none" }}
+          >
             {submitting ? "Uploading…" : "Add Photo"}
           </Button>
         </DialogFooter>

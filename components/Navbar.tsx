@@ -1,10 +1,18 @@
 // Top navigation bar — shown on all authenticated pages.
-// Contains links to main sections and a user avatar dropdown for profile + sign-out.
+// Deep purple with gold accent stripe; editorial serif logo treatment.
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Megaphone, Users, GitBranch, Images, LogOut, User, type LucideIcon } from "lucide-react";
+import {
+  Megaphone,
+  Users,
+  GitBranch,
+  Images,
+  LogOut,
+  User,
+  type LucideIcon,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +23,7 @@ import {
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
+import { theme } from "@/lib/theme";
 
 const NAV_ITEMS: { label: string; href: string; icon: LucideIcon }[] = [
   { label: "Announcements", href: "/announcements", icon: Megaphone },
@@ -39,17 +48,34 @@ export default function Navbar() {
     : (user?.displayName?.charAt(0) ?? "?");
 
   return (
-    <header className="sticky top-0 z-50 bg-primary text-primary-foreground shadow-md">
-      <div className="relative flex h-14 items-center px-4">
-        <Link
-          href="/announcements"
-          className="text-lg font-bold text-primary-foreground no-underline"
-        >
-          AKPsi
+    <header
+      className="sticky top-0 z-50"
+      style={{ background: theme.primary, borderBottom: `3px solid ${theme.gold}` }}
+    >
+      <div className="relative flex h-[60px] items-center px-5">
+        {/* Logo */}
+        <Link href="/announcements" className="flex items-center gap-2.5 no-underline shrink-0">
+          <span
+            className="text-[26px] text-white leading-none tracking-tight"
+            style={{ fontFamily: "var(--font-display, serif)", fontWeight: 700 }}
+          >
+            ΑΚΨ
+          </span>
+          <div className="hidden sm:flex flex-col justify-center gap-[3px]">
+            <span className="text-[9px] font-bold tracking-[0.22em] text-white/60 uppercase leading-none">
+              Alpha Kappa Psi
+            </span>
+            <span
+              className="text-[9px] tracking-[0.16em] uppercase leading-none"
+              style={{ color: theme.gold, opacity: 0.8 }}
+            >
+              Univ. of Washington
+            </span>
+          </div>
         </Link>
 
-        {/* Centered nav items */}
-        <nav className="absolute left-1/2 -translate-x-1/2 flex gap-1">
+        {/* Centered nav */}
+        <nav className="absolute left-1/2 -translate-x-1/2 flex items-stretch h-[60px]">
           {NAV_ITEMS.map(({ label, href, icon: Icon }) => {
             const active = pathname.startsWith(href);
             return (
@@ -57,32 +83,43 @@ export default function Navbar() {
                 key={href}
                 href={href}
                 className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-none",
-                  "border-b-2 transition-opacity text-primary-foreground no-underline",
+                  "flex items-center gap-1.5 px-3.5 text-[13px] font-medium no-underline transition-all duration-150",
+                  "border-b-[3px] -mb-[3px]",
                   active
-                    ? "opacity-100 border-white"
-                    : "opacity-70 border-transparent hover:opacity-100"
+                    ? "border-transparent text-white/65 hover:text-white hover:border-white/30"
+                    : "border-transparent text-white/65 hover:text-white hover:border-white/30"
                 )}
+                style={
+                  active
+                    ? { color: theme.gold, borderBottomColor: theme.gold }
+                    : {}
+                }
               >
-                <Icon className="h-4 w-4" />
-                {label}
+                <Icon className="h-3.5 w-3.5 shrink-0" />
+                <span className="hidden md:inline">{label}</span>
               </Link>
             );
           })}
         </nav>
 
-        {/* Right side: avatar dropdown */}
+        {/* Right: avatar dropdown */}
         <div className="flex-1" />
         <DropdownMenu>
-          <DropdownMenuTrigger className="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-primary/80 transition-colors outline-none">
-            <Avatar className="h-8 w-8">
+          <DropdownMenuTrigger className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-white/10 transition-colors outline-none">
+            <Avatar
+              className="h-8 w-8"
+              style={{ outline: `2px solid ${theme.gold}80`, outlineOffset: "1px" }}
+            >
               <AvatarImage src={avatarUrl} alt={displayName} />
-              <AvatarFallback className="bg-white/20 text-primary-foreground text-xs font-semibold">
+              <AvatarFallback
+                className="text-xs font-bold"
+                style={{ background: theme.gold, color: theme.primary }}
+              >
                 {initials}
               </AvatarFallback>
             </Avatar>
             {displayName && (
-              <span className="text-sm font-medium text-primary-foreground hidden sm:block">
+              <span className="text-[13px] font-medium text-white/85 hidden sm:block">
                 {displayName}
               </span>
             )}
@@ -91,18 +128,18 @@ export default function Navbar() {
           <DropdownMenuContent align="end" className="w-44">
             <DropdownMenuItem
               onClick={() => router.push("/profile")}
-              className="flex items-center gap-2 cursor-pointer"
+              className="cursor-pointer"
             >
-              <User className="h-4 w-4" />
+              <User className="h-4 w-4 mr-2" />
               My Profile
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={signOut}
               variant="destructive"
-              className="flex items-center gap-2 cursor-pointer"
+              className="cursor-pointer"
             >
-              <LogOut className="h-4 w-4" />
+              <LogOut className="h-4 w-4 mr-2" />
               Sign out
             </DropdownMenuItem>
           </DropdownMenuContent>

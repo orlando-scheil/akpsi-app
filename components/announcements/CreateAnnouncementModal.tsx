@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { theme } from "@/lib/theme";
 
 interface CreateAnnouncementData {
   title: string;
@@ -50,7 +51,6 @@ export function CreateAnnouncementModal({
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const selected = Array.from(e.target.files ?? []);
     setFiles((prev) => [...prev, ...selected]);
-    // Reset input so the same file can be re-selected if removed
     e.target.value = "";
   }
 
@@ -72,13 +72,31 @@ export function CreateAnnouncementModal({
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && handleClose()}>
       <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>New Announcement</DialogTitle>
+        <DialogHeader className="pb-0">
+          <DialogTitle
+            className="text-xl leading-tight"
+            style={{
+              fontFamily: "var(--font-display, serif)",
+              fontWeight: 700,
+              color: theme.textHeading,
+            }}
+          >
+            New Announcement
+          </DialogTitle>
+          <div
+            className="h-[2px] w-8 rounded-full mt-2"
+            style={{ background: theme.gold }}
+          />
         </DialogHeader>
 
-        <div className="flex flex-col gap-4 py-2">
+        <div className="flex flex-col gap-4 pt-2">
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium">Title</label>
+            <label
+              className="text-[10px] font-bold tracking-[0.18em] uppercase"
+              style={{ color: theme.textSecondary }}
+            >
+              Title
+            </label>
             <Input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -89,23 +107,36 @@ export function CreateAnnouncementModal({
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium">
-              What&apos;s the announcement?
+            <label
+              className="text-[10px] font-bold tracking-[0.18em] uppercase"
+              style={{ color: theme.textSecondary }}
+            >
+              Message
             </label>
             <Textarea
               value={body}
               onChange={(e) => setBody(e.target.value)}
-              rows={4}
+              rows={5}
               disabled={submitting}
               required
+              placeholder="What's the announcement?"
+              className="resize-none"
             />
           </div>
 
           {/* Image picker */}
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium">
+            <label
+              className="text-[10px] font-bold tracking-[0.18em] uppercase"
+              style={{ color: theme.textSecondary }}
+            >
               Images{" "}
-              <span className="text-muted-foreground font-normal">(optional)</span>
+              <span
+                className="normal-case font-normal tracking-normal"
+                style={{ color: theme.textDim }}
+              >
+                (optional)
+              </span>
             </label>
 
             {files.length > 0 && (
@@ -115,7 +146,8 @@ export function CreateAnnouncementModal({
                     <img
                       src={URL.createObjectURL(file)}
                       alt={file.name}
-                      className="w-full h-24 object-cover rounded-md border"
+                      className="w-full h-24 object-cover rounded-lg"
+                      style={{ border: `1px solid ${theme.border}` }}
                     />
                     <button
                       type="button"
@@ -144,7 +176,7 @@ export function CreateAnnouncementModal({
               size="sm"
               disabled={submitting}
               onClick={() => fileInputRef.current?.click()}
-              className="w-fit"
+              className="w-fit border-dashed transition-colors hover:border-primary/40 hover:text-primary"
             >
               <ImagePlus className="h-4 w-4 mr-2" />
               Add images
@@ -152,12 +184,17 @@ export function CreateAnnouncementModal({
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="pt-2">
           <Button variant="ghost" onClick={handleClose} disabled={submitting}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={!canSubmit || submitting}>
-            {submitting ? "Posting…" : "Post"}
+          <Button
+            onClick={handleSubmit}
+            disabled={!canSubmit || submitting}
+            className="font-semibold transition-opacity hover:opacity-90"
+            style={{ background: theme.primary, color: "white", border: "none" }}
+          >
+            {submitting ? "Posting…" : "Post Announcement"}
           </Button>
         </DialogFooter>
       </DialogContent>

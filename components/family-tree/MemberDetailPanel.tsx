@@ -2,6 +2,7 @@
 // Displays profile info, big/little relationships, and contact links.
 import { X } from "lucide-react";
 import type { Member } from "@/types/member";
+import { theme } from "@/lib/theme";
 
 interface MemberDetailPanelProps {
   member: Member;
@@ -9,20 +10,49 @@ interface MemberDetailPanelProps {
   onClose: () => void;
 }
 
+const STATUS_STYLES: Record<Member["status"], { bg: string; text: string }> = {
+  active:   theme.statusActive,
+  alumni:   theme.statusAlumni,
+  inactive: theme.statusInactive,
+};
+
 export function MemberDetailPanel({ member, members, onClose }: MemberDetailPanelProps) {
   const displayName = member.preferredName ?? member.firstName;
   const big = member.bigUid ? members.find((m) => m.uid === member.bigUid) : null;
   const littles = members.filter((m) => m.bigUid === member.uid);
+  const statusStyle = STATUS_STYLES[member.status];
 
   return (
-    <div className="fixed right-0 top-14 h-[calc(100vh-56px)] w-72 bg-white border-l shadow-xl z-10 flex flex-col overflow-hidden">
+    <div
+      className="fixed right-0 top-[63px] h-[calc(100vh-63px)] w-72 z-10 flex flex-col overflow-hidden"
+      style={{
+        background: theme.bgCard,
+        borderLeft: `1px solid ${theme.border}`,
+        boxShadow: "-4px 0 24px rgba(75,46,131,0.08)",
+      }}
+    >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b">
-        <h2 className="text-sm font-semibold">Member Profile</h2>
+      <div
+        className="flex items-center justify-between px-4 py-3"
+        style={{ borderBottom: `1px solid ${theme.border}` }}
+      >
+        <h2
+          className="text-sm font-semibold"
+          style={{ color: theme.textPrimary }}
+        >
+          Member Profile
+        </h2>
         <button
           onClick={onClose}
           aria-label="Close panel"
-          className="h-7 w-7 flex items-center justify-center rounded-md hover:bg-muted transition-colors"
+          className="h-7 w-7 flex items-center justify-center rounded-md transition-colors"
+          style={{ color: theme.textSecondary }}
+          onMouseEnter={(e) =>
+            ((e.currentTarget as HTMLButtonElement).style.background = theme.border)
+          }
+          onMouseLeave={(e) =>
+            ((e.currentTarget as HTMLButtonElement).style.background = "transparent")
+          }
         >
           <X className="h-4 w-4" />
         </button>
@@ -37,26 +67,29 @@ export function MemberDetailPanel({ member, members, onClose }: MemberDetailPane
               src={member.profilePhotoUrl}
               alt={`${displayName} ${member.lastName}`}
               className="h-16 w-16 rounded-full object-cover"
+              style={{ outline: `3px solid ${theme.primary}20`, outlineOffset: "2px" }}
             />
           ) : (
-            <div className="h-16 w-16 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-lg font-bold">
+            <div
+              className="h-16 w-16 rounded-full flex items-center justify-center text-lg font-bold"
+              style={{ background: theme.primary, color: "white" }}
+            >
               {member.firstName[0] ?? ""}{member.lastName[0] ?? ""}
             </div>
           )}
           <div className="text-center">
-            <p className="font-semibold text-sm">
+            <p className="font-semibold text-sm" style={{ color: theme.textPrimary }}>
               {displayName} {member.lastName}
             </p>
             {member.role && (
-              <p className="text-xs text-muted-foreground">{member.role}</p>
+              <p className="text-xs mt-0.5" style={{ color: theme.textSecondary }}>
+                {member.role}
+              </p>
             )}
-            <span className={`inline-block text-[10px] px-1.5 py-0.5 rounded mt-1 ${
-              member.status === "active"
-                ? "bg-green-100 text-green-700"
-                : member.status === "alumni"
-                ? "bg-blue-100 text-blue-700"
-                : "bg-orange-100 text-orange-700"
-            }`}>
+            <span
+              className="inline-block text-[10px] px-1.5 py-0.5 rounded-full mt-1.5 font-semibold"
+              style={{ background: statusStyle.bg, color: statusStyle.text }}
+            >
               {member.status.charAt(0).toUpperCase() + member.status.slice(1)}
             </span>
           </div>
@@ -64,7 +97,9 @@ export function MemberDetailPanel({ member, members, onClose }: MemberDetailPane
 
         {/* Bio */}
         {member.bio && (
-          <p className="text-xs text-muted-foreground leading-relaxed">{member.bio}</p>
+          <p className="text-xs leading-relaxed" style={{ color: theme.textSecondary }}>
+            {member.bio}
+          </p>
         )}
 
         {/* Details */}
@@ -78,30 +113,37 @@ export function MemberDetailPanel({ member, members, onClose }: MemberDetailPane
 
         {/* Big */}
         <div>
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">Big</p>
+          <SectionLabel>Big</SectionLabel>
           {big ? (
             <div className="flex items-center gap-2">
               {big.profilePhotoUrl ? (
                 <img src={big.profilePhotoUrl} alt="" className="h-7 w-7 rounded-full object-cover" />
               ) : (
-                <div className="h-7 w-7 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
+                <div
+                  className="h-7 w-7 rounded-full text-[10px] font-bold flex items-center justify-center"
+                  style={{ background: theme.primary, color: "white" }}
+                >
                   {big.firstName[0] ?? ""}{big.lastName[0] ?? ""}
                 </div>
               )}
-              <span className="text-xs">{big.preferredName ?? big.firstName} {big.lastName}</span>
+              <span className="text-xs" style={{ color: theme.textPrimary }}>
+                {big.preferredName ?? big.firstName} {big.lastName}
+              </span>
             </div>
           ) : member.bigName ? (
-            <p className="text-xs text-muted-foreground italic">{member.bigName} (not in directory)</p>
+            <p className="text-xs italic" style={{ color: theme.textSecondary }}>
+              {member.bigName} (not in directory)
+            </p>
           ) : (
-            <p className="text-xs text-muted-foreground">—</p>
+            <p className="text-xs" style={{ color: theme.textDim }}>—</p>
           )}
         </div>
 
         {/* Littles */}
         <div>
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">
+          <SectionLabel>
             Littles{littles.length > 0 ? ` (${littles.length})` : ""}
-          </p>
+          </SectionLabel>
           {littles.length > 0 ? (
             <div className="flex flex-col gap-1.5">
               {littles.map((little) => (
@@ -109,23 +151,28 @@ export function MemberDetailPanel({ member, members, onClose }: MemberDetailPane
                   {little.profilePhotoUrl ? (
                     <img src={little.profilePhotoUrl} alt="" className="h-7 w-7 rounded-full object-cover" />
                   ) : (
-                    <div className="h-7 w-7 rounded-full bg-muted text-muted-foreground text-[10px] font-bold flex items-center justify-center">
+                    <div
+                      className="h-7 w-7 rounded-full text-[10px] font-bold flex items-center justify-center"
+                      style={{ background: theme.border, color: theme.textSecondary }}
+                    >
                       {little.firstName[0] ?? ""}{little.lastName[0] ?? ""}
                     </div>
                   )}
-                  <span className="text-xs">{little.preferredName ?? little.firstName} {little.lastName}</span>
+                  <span className="text-xs" style={{ color: theme.textPrimary }}>
+                    {little.preferredName ?? little.firstName} {little.lastName}
+                  </span>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-xs text-muted-foreground">No littles yet</p>
+            <p className="text-xs" style={{ color: theme.textDim }}>No littles yet</p>
           )}
         </div>
 
         {/* Social links */}
         {member.socialLinks.length > 0 && (
           <div>
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">Links</p>
+            <SectionLabel>Links</SectionLabel>
             <div className="flex flex-col gap-1">
               {member.socialLinks.map((link) => {
                 const safeUrl =
@@ -138,12 +185,17 @@ export function MemberDetailPanel({ member, members, onClose }: MemberDetailPane
                     href={safeUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs text-primary hover:underline"
+                    className="text-xs hover:underline"
+                    style={{ color: theme.primary }}
                   >
                     {link.platform}
                   </a>
                 ) : (
-                  <span key={link.platform} className="text-xs text-muted-foreground">
+                  <span
+                    key={link.platform}
+                    className="text-xs"
+                    style={{ color: theme.textSecondary }}
+                  >
                     {link.platform}
                   </span>
                 );
@@ -156,11 +208,26 @@ export function MemberDetailPanel({ member, members, onClose }: MemberDetailPane
   );
 }
 
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p
+      className="text-[10px] font-bold uppercase tracking-[0.15em] mb-1.5"
+      style={{ color: theme.textDim }}
+    >
+      {children}
+    </p>
+  );
+}
+
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex gap-2">
-      <span className="text-muted-foreground w-20 shrink-0">{label}</span>
-      <span className="font-medium truncate">{value}</span>
+      <span className="w-20 shrink-0" style={{ color: theme.textSecondary }}>
+        {label}
+      </span>
+      <span className="font-medium truncate" style={{ color: theme.textPrimary }}>
+        {value}
+      </span>
     </div>
   );
 }
