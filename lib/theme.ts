@@ -3,7 +3,7 @@
 
 export const theme = {
   // Core brand
-  primary: "#052F5F",         // Deep purple — navbar, card accents, buttons
+  primary: "#052F5F",         // Navy blue
   primaryDark: "#2d1a5c",     // Deeper purple — headings, text emphasis
   primaryMuted: "rgba(75, 46, 131, 0.5)", // Muted purple — eyebrow labels
 
