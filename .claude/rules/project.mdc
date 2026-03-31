@@ -1,0 +1,174 @@
+---
+description: Project overview, tech stack, and conventions for akpsi-app
+alwaysApply: true
+---
+
+# akpsi-app
+
+A web app for the Alpha Kappa Psi (AKPsi) chapter at UW. Built for members, officers, and pledges to stay connected and organized.
+
+## Tech Stack
+
+- **Framework:** Next.js 16 (App Router) with React 19 and TypeScript
+- **UI:** shadcn/ui for components, Tailwind CSS 4 for all styling
+- **Icons:** lucide-react
+- **Backend:** Firebase (Auth, Firestore, Storage, Hosting)
+- **Styling approach:** Use shadcn/ui components (`components/ui/`) for all interactive UI. Style with Tailwind utility classes. Use `cn()` from `lib/utils.ts` for conditional class merging. No MUI — it has been removed.
+
+## Pages & Features
+
+### 1. Announcements (`/announcements`)
+- Feed of chapter announcements with title, body, author avatar, timestamp, and optional images
+- Members can create announcements via a modal
+- Stored in Firestore `announcements` collection
+- Future: Slack channel integration to auto-pull announcements
+
+### 2. Member Directory (`/members`)
+- Searchable/sortable table of all members
+- Self-supplied profiles: name, major, graduation year, pledge class, big, phone, email, bio, social links, industries
+- Members control contact info visibility
+- Stored in Firestore `members` collection (path: `users/{uid}`)
+
+### 3. Gallery (`/gallery`)
+- Pinterest-style masonry grid of chapter photos
+- Members can upload photos with captions
+- Lightbox for full-size viewing
+- Stored in Firestore `gallery` collection; images in Firebase Storage
+
+### 4. Family Tree (`/family-tree`)
+- Interactive graph visualization of big/little relationships across pledge classes
+- Built with `@xyflow/react`
+- Currently uses mock data — Firebase integration pending
+
+## Data Types (source of truth: `types/`)
+
+```ts
+// types/member.ts
+Member {
+  uid, firstName, lastName, preferredName, profilePhotoUrl,
+  pledgeClass, pledgeClassQuarter ("Fall"|"Spring"), pledgeClassYear,
+  status ("active"|"alumni"|"inactive"), role, familyId, familyName,
+  bigUid, bigName, major, graduationYear, email, phone,
+  preferredContact, socialLinks, bio, industries,
+  joinedAt, lastActive, isAdmin
+}
+
+// types/announcement.ts
+Announcement {
+  id, title, body, authorId, authorName, authorAvatar, imageUrls, createdAt
+}
+
+// types/gallery.ts
+GalleryPhoto {
+  id, imageUrl, caption, uploadedBy, uploadedAt, aspectRatio
+}
+```
+
+## Authentication
+
+- Firebase Auth with Google sign-in only
+- Restricted to `@uw.edu` email domain (enforced in `lib/auth.tsx` via `hd` param + email check after sign-in)
+- `AuthProvider` wraps the app in root layout; `useAuth()` hook for access
+- `NEXT_PUBLIC_SKIP_AUTH=true` bypasses auth with a mock user for local dev
+- Future: officer vs member roles for posting/admin permissions
+
+## Project Structure
+
+```
+app/
+  (auth)/               # Auth-gated layout group (Navbar + auth check)
+    announcements/
+    members/
+    gallery/
+    family-tree/
+  login/                # Public login page
+  layout.tsx            # Root layout — AuthProvider + TooltipProvider + Roboto font
+  page.tsx              # Redirects to /announcements or /login
+components/
+  ui/                   # shadcn/ui primitives (button, card, dialog, input, etc.)
+  announcements/        # AnnouncementCard, AnnouncementFeed, CreateAnnouncementModal
+  members/              # MemberRow, MemberTable, MemberDirectory
+  gallery/              # GalleryFeed, GalleryPhotoCard, GalleryLightbox, AddPhotoModal
+  family-tree/          # FamilyTreeGraph, MemberNode, GhostNode, MemberDetailPanel
+  Navbar.tsx            # Sticky top nav with links and sign-out
+lib/
+  firebase.ts           # Firebase app init — exports auth, db, storage
+  auth.tsx              # AuthProvider + useAuth hook
+  firestore.ts          # Firestore CRUD helpers (to be built)
+  storage.ts            # Firebase Storage upload helpers (to be built)
+  mock-data.ts          # Placeholder data for dev (replaces with real Firestore later)
+  build-family-tree.ts  # Transforms member list into @xyflow/react node/edge format
+  search-members.ts     # Client-side member search/filter logic
+  utils.ts              # cn(), formatRelativeTime(), other shared utilities
+types/                  # TypeScript interfaces (Member, Announcement, GalleryPhoto)
+```
+
+## Firebase Setup
+
+- Config loaded from env vars in `.env.local` (see `.env.local.example`)
+- Firestore collections: `announcements`, `users` (members), `gallery`
+- Storage paths: `announcements/{id}/{file}`, `gallery/{uid}/{file}`, `avatars/{uid}/{file}`
+- Security rules: authenticated reads across all collections; writes scoped to document owner
+
+## Conventions
+
+### General
+- `"use client"` only when the component uses hooks, events, or browser APIs — prefer Server Components
+- All Firebase calls go through helpers in `lib/` — never call Firestore/Storage directly in components
+- One component per file, named exports, PascalCase filenames for components
+- Keep pages thin — delegate logic to components and hooks
+
+### Styling
+- Use shadcn/ui components from `components/ui/` for all interactive UI elements
+- Style exclusively with Tailwind CSS utility classes
+- Use `cn()` from `lib/utils.ts` for conditional/merged class names
+- Color tokens use CSS variables via Tailwind (`bg-primary`, `text-muted-foreground`, etc.)
+- No inline styles, no MUI, no `sx` prop
+
+### File Header Comments
+When creating a **new** functional code file, add a brief comment at the top (before imports):
+1. What the file does — one sentence, plain language
+2. Where it fits — what page, feature, or part of the app uses it
+
+Keep it short (2–4 lines). No verbose JSDoc.
+
+```tsx
+// MemberRow — Renders a single row in the member directory table.
+// Used by MemberTable on /members.
+```
+
+Applies to: components, pages, hooks, helpers, utilities, type definitions.
+Does NOT apply to: config files, auto-generated files, env files, markdown, rule files.
+
+### TypeScript
+- Explicit return types on exported functions
+- Use `interface` for object shapes, `type` for unions/intersections
+- Avoid `any` — use `unknown` and narrow, or define proper types
+- Prefer `const` assertions and `readonly` where applicable
+
+### React Components
+- Functional components only, no classes
+- Props interface named `[Component]Props`
+- Destructure props in function signature
+- Group hooks at top, then handlers, then render logic
+
+### Naming
+- Components: PascalCase (`MemberCard.tsx`)
+- Hooks: camelCase with `use` prefix (`useAuth.ts`)
+- Utils: camelCase (`formatDate.ts`)
+- Types: PascalCase (`Member`, `Announcement`)
+- Constants: SCREAMING_SNAKE_CASE
+
+### Imports Order
+1. React / Next.js
+2. Third-party (Firebase, lucide-react, @xyflow/react, etc.)
+3. Local components
+4. Local utils / hooks
+5. Types
+
+## Future Considerations
+
+- Cloud Functions for server-side logic (Slack webhook, scheduled tasks)
+- Slack integration for announcements auto-sync
+- Officer role permissions for managing announcements and members
+- Replace mock data in family tree with live Firestore queries

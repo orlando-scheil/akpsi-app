@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(plugin)",
+      "Bash(commands \")",
+      "Bash(npx:*)",
+      "Bash(npm uninstall:*)",
+      "Skill(typecheck)",
+      "Skill(review)",
+      "Bash(ls:*)",
+      "Bash(cat:*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx eslint --fix --quiet \"$CLAUDE_FILE_PATH\" 2>/dev/null | head -3"
+          }
+        ]
+      }
+    ]
+  }
+}

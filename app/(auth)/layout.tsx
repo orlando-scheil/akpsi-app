@@ -1,10 +1,10 @@
 // Auth-gated layout — wraps all routes under (auth)/.
-// Redirects unauthenticated users to /login.
+// Redirects unauthenticated users to /login; redirects users without a profile to /profile.
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
-import { Box, CircularProgress } from "@mui/material";
+import { Loader2 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import Navbar from "@/components/Navbar";
 
@@ -13,26 +13,31 @@ export default function AuthLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, loading } = useAuth();
+  const { user, member, loading } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (loading) return;
+    if (!user) {
       router.replace("/login");
+      return;
     }
-  }, [user, loading, router]);
+    // If the user has no profile doc and isn't already on /profile, send them there
+    if (!member && pathname !== "/profile") {
+      router.replace("/profile");
+    }
+  }, [user, member, loading, pathname, router]);
 
   if (loading) {
     return (
-      <Box className="flex min-h-screen items-center justify-center">
-        <CircularProgress />
-      </Box>
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
     );
   }
 
-  if (!user) {
-    return null;
-  }
+  if (!user) return null;
 
   return (
     <>

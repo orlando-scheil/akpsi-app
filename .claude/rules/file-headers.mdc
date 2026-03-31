@@ -1,0 +1,47 @@
+---
+description: Add a short plain-language header comment to every new functional code file
+alwaysApply: true
+---
+
+# File Header Comments
+
+When creating a **new** file that adds functionality to the website, add a brief comment block at the very top of the file (before imports) that explains:
+
+1. **What the file does** — one sentence, plain language
+2. **Where it fits** — what page, feature, or part of the app uses it
+
+Keep it short (2–4 lines). Write it like you're explaining to a teammate, not generating docs. No @param tags, no verbose JSDoc formatting.
+
+## Format
+
+For TypeScript / TSX files:
+
+```
+/**
+ * MemberRow — Renders a single row in the member directory table.
+ * Shows name, major, year, and pledge class. Used by MemberTable on /members.
+ */
+```
+
+For CSS files:
+
+```
+/* Global styles — base resets, Tailwind imports, and app-wide defaults. */
+```
+
+## Applies to
+
+- Components (`components/**/*.tsx`)
+- Pages (`app/**/*.tsx` including `page.tsx` and `layout.tsx`)
+- Hooks, helpers, and utilities (`lib/**/*.ts`)
+- Type definitions (`types/**/*.ts`)
+- CSS files that define custom styles (`app/**/*.css`)
+
+## Does NOT apply to
+
+- Config files (`next.config.*`, `tsconfig.json`, `package.json`, `tailwind.config.*`, `postcss.config.*`, `.eslintrc.*`, etc.)
+- Auto-generated files (`.next/`, `node_modules/`)
+- Environment files (`.env*`)
+- Markdown or documentation files (`*.md`)
+- Rule files (`.cursor/rules/*`)
+- Firebase config (`firebase.json`, `.firebaserc`, `firestore.rules`, etc.)
