@@ -91,38 +91,37 @@ export function GalleryFeed() {
   }
 
   const handleAddPhoto = useCallback(
-    async ({
-      file,
-      caption,
-      aspectRatio,
-    }: {
-      file: File;
-      caption: string;
-      aspectRatio: number;
-    }) => {
+    async (items: { file: File; caption: string; aspectRatio: number }[]) => {
       const uid = user?.uid ?? "unknown";
       const displayName = user?.displayName ?? user?.email ?? "Unknown";
 
-      const { url, storagePath } = await uploadGalleryPhoto(uid, file);
+      const uploaded = await Promise.all(
+        items.map(({ file }) => uploadGalleryPhoto(uid, file))
+      );
 
-      await createGalleryPhoto({
-        imageUrl: url,
-        storagePath,
-        caption: caption || undefined,
-        uploadedBy: displayName,
-        aspectRatio,
-      });
+      await Promise.all(
+        uploaded.map(({ url, storagePath }, i) =>
+          createGalleryPhoto({
+            imageUrl: url,
+            storagePath,
+            caption: items[i].caption || undefined,
+            uploadedBy: displayName,
+            aspectRatio: items[i].aspectRatio,
+          })
+        )
+      );
 
-      const newPhoto: GalleryPhoto = {
+      const newPhotos: GalleryPhoto[] = uploaded.map(({ url, storagePath }, i) => ({
         id: crypto.randomUUID(),
         imageUrl: url,
         storagePath,
-        caption: caption || undefined,
+        caption: items[i].caption || undefined,
         uploadedBy: displayName,
         uploadedAt: new Date(),
-        aspectRatio,
-      };
-      setPhotos((prev) => [newPhoto, ...prev]);
+        aspectRatio: items[i].aspectRatio,
+      }));
+
+      setPhotos((prev) => [...newPhotos, ...prev]);
     },
     [user]
   );

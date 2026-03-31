@@ -16,7 +16,7 @@ export const theme = {
   bgCardHover: "#fafafa",
 
   // Text
-  textHeading: "#2d1a5c",     // Used for page titles
+  textHeading: "#052F5F",     // Used for page titles
   textPrimary: "#111827",     // Body headings / author names
   textSecondary: "#6B7280",   // Body copy / timestamps
   textDim: "#9CA3AF",         // Placeholders / very muted text

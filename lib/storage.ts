@@ -99,7 +99,7 @@ export async function uploadGalleryPhoto(
   onProgress?: UploadProgressCallback
 ): Promise<{ url: string; storagePath: string }> {
   const ext = file.name.split(".").pop() ?? "jpg";
-  const filename = `${Date.now()}.${ext}`;
+  const filename = `${Date.now()}_${crypto.randomUUID()}.${ext}`;
   const storagePath = `gallery/${uid}/${filename}`;
   const url = await uploadFile(storagePath, file, onProgress);
   return { url, storagePath };

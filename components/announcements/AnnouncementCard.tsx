@@ -125,8 +125,7 @@ export function AnnouncementCard({ announcement, onDelete }: AnnouncementCardPro
           <h3
             className="text-[0.95rem] font-semibold mb-1.5 leading-snug"
             style={{
-              fontFamily: "var(--font-display, serif)",
-              color: theme.textPrimary,
+              color: theme.textPrimary
             }}
           >
             {title}
