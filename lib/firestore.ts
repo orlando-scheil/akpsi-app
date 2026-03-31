@@ -134,6 +134,14 @@ export async function deleteAnnouncement(id: string): Promise<void> {
   await deleteDoc(doc(db, "announcements", id));
 }
 
+// ─── Allowlist ────────────────────────────────────────────────────────────────
+
+/** Returns true if the email exists in the AKPsi-approved allowlist. */
+export async function isEmailAllowed(email: string): Promise<boolean> {
+  const snap = await getDoc(doc(db, "allowedEmails", email.toLowerCase()));
+  return snap.exists();
+}
+
 // ─── Members ──────────────────────────────────────────────────────────────────
 
 const usersCol = collection(db, "users");
@@ -252,8 +260,11 @@ export interface CreateGalleryPhotoData {
 
 /** Add a new gallery photo document. Returns the new document ID. */
 export async function createGalleryPhoto(data: CreateGalleryPhotoData): Promise<string> {
+  const { caption, aspectRatio, ...required } = data;
   const ref = await addDoc(galleryCol, {
-    ...data,
+    ...required,
+    ...(caption !== undefined && { caption }),
+    ...(aspectRatio !== undefined && { aspectRatio }),
     uploadedAt: serverTimestamp(),
   });
   return ref.id;

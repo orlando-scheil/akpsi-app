@@ -16,7 +16,7 @@ import {
   type User,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import { getMember } from "@/lib/firestore";
+import { getMember, isEmailAllowed } from "@/lib/firestore";
 import type { Member } from "@/types/member";
 
 interface AuthContextValue {
@@ -83,6 +83,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!email.endsWith(`@${ALLOWED_DOMAIN}`)) {
       await firebaseSignOut(auth);
       throw new Error("Please sign in with your @uw.edu email address.");
+    }
+
+    const allowed = await isEmailAllowed(email);
+    if (!allowed) {
+      await firebaseSignOut(auth);
+      throw new Error("Your email is not on the AKPsi member list. Contact an officer to get access.");
     }
   }, []);
 
