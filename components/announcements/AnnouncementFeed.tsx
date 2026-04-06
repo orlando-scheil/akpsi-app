@@ -143,6 +143,11 @@ export function AnnouncementFeed() {
               <AnnouncementCard
                 key={a.id}
                 announcement={a}
+                currentUser={
+                  user
+                    ? { uid: user.uid, name: user.displayName ?? "Member", avatar: user.photoURL ?? undefined }
+                    : null
+                }
                 onDelete={
                   a.authorId === user?.uid
                     ? () => deleteAnnouncement(a.id)

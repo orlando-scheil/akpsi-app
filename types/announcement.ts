@@ -1,4 +1,4 @@
-// Type definition for chapter announcements displayed on the Announcements feed.
+// Type definitions for announcements and their comments.
 export interface Announcement {
   id: string;
   title: string;
@@ -8,4 +8,16 @@ export interface Announcement {
   authorAvatar?: string;
   imageUrls: string[];
   createdAt: Date;
+  likedBy: string[];
+  commentCount: number;
+}
+
+export interface AnnouncementComment {
+  id: string;
+  body: string;
+  authorId: string;
+  authorName: string;
+  authorAvatar?: string;
+  createdAt: Date;
+  updatedAt?: Date;
 }

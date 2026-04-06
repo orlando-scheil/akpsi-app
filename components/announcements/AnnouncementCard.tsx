@@ -1,9 +1,10 @@
 // Single announcement card — displays author, timestamp, body text, and optional images.
 // Shows a delete option (via ⋯ menu) when onDelete is provided (i.e. current user is author).
+// Includes a like (heart) button and a comment button that opens CommentsModal.
 "use client";
 
 import { useState } from "react";
-import { MoreHorizontal, Trash2 } from "lucide-react";
+import { MoreHorizontal, Trash2, Heart, MessageCircle } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,20 +20,44 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { toggleLike } from "@/lib/firestore";
 import type { Announcement } from "@/types/announcement";
 import { formatRelativeTime } from "@/lib/utils";
 import { theme } from "@/lib/theme";
+import { CommentsModal } from "./CommentsModal";
+
+interface CurrentUser {
+  uid: string;
+  name: string;
+  avatar?: string;
+}
 
 interface AnnouncementCardProps {
   announcement: Announcement;
+  currentUser: CurrentUser | null;
   onDelete?: () => Promise<void>;
 }
 
-export function AnnouncementCard({ announcement, onDelete }: AnnouncementCardProps) {
-  const { title, body, authorName, authorAvatar, imageUrls, createdAt } = announcement;
+export function AnnouncementCard({ announcement, currentUser, onDelete }: AnnouncementCardProps) {
+  const { title, body, authorName, authorAvatar, imageUrls, createdAt, likedBy, commentCount } = announcement;
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [hovered, setHovered] = useState(false);
+  const [likePending, setLikePending] = useState(false);
+  const [commentsOpen, setCommentsOpen] = useState(false);
+
+  const isLiked = currentUser ? likedBy.includes(currentUser.uid) : false;
+  const likeCount = likedBy.length;
+
+  async function handleLike() {
+    if (!currentUser || likePending) return;
+    setLikePending(true);
+    try {
+      await toggleLike(announcement.id, currentUser.uid, isLiked);
+    } finally {
+      setLikePending(false);
+    }
+  }
 
   async function handleDelete() {
     if (!onDelete || deleting) return;
@@ -160,6 +185,51 @@ export function AnnouncementCard({ announcement, onDelete }: AnnouncementCardPro
             )}
           </div>
         )}
+
+        {/* Action bar */}
+        <div
+          className="flex items-center gap-1 px-4 py-2"
+          style={{ borderTop: `1px solid ${theme.border}` }}
+        >
+          <button
+            onClick={handleLike}
+            disabled={!currentUser || likePending}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md transition-colors disabled:opacity-50"
+            style={{ color: isLiked ? "#ef4444" : theme.textSecondary }}
+            onMouseEnter={(e) => {
+              if (!isLiked) (e.currentTarget as HTMLButtonElement).style.color = "#ef4444";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.color = isLiked ? "#ef4444" : theme.textSecondary;
+            }}
+          >
+            <Heart
+              className="h-[1.05rem] w-[1.05rem] transition-all duration-150"
+              fill={isLiked ? "#ef4444" : "none"}
+              strokeWidth={isLiked ? 0 : 2}
+            />
+            {likeCount > 0 && (
+              <span className="text-xs font-medium tabular-nums">{likeCount}</span>
+            )}
+          </button>
+
+          <button
+            onClick={() => setCommentsOpen(true)}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md transition-colors"
+            style={{ color: theme.textSecondary }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.color = theme.primary;
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.color = theme.textSecondary;
+            }}
+          >
+            <MessageCircle className="h-[1.05rem] w-[1.05rem]" strokeWidth={2} />
+            {commentCount > 0 && (
+              <span className="text-xs font-medium tabular-nums">{commentCount}</span>
+            )}
+          </button>
+        </div>
       </div>
 
       <Dialog
@@ -192,6 +262,14 @@ export function AnnouncementCard({ announcement, onDelete }: AnnouncementCardPro
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <CommentsModal
+        announcementId={announcement.id}
+        announcementTitle={title}
+        open={commentsOpen}
+        onClose={setCommentsOpen}
+        currentUser={currentUser}
+      />
     </>
   );
 }
