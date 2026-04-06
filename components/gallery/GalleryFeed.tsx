@@ -6,10 +6,10 @@ import { useState, useEffect, useCallback } from "react";
 import { ImagePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
-import { getGalleryPage, createGalleryPhoto } from "@/lib/firestore";
+import { useGallery } from "@/lib/gallery-context";
+import { createGalleryPhoto } from "@/lib/firestore";
 import { uploadGalleryPhoto } from "@/lib/storage";
 import type { GalleryPhoto } from "@/types/gallery";
-import type { QueryDocumentSnapshot, DocumentData } from "firebase/firestore";
 import { theme } from "@/lib/theme";
 import { GalleryPhotoCard } from "./GalleryPhotoCard";
 import { GalleryLightbox } from "./GalleryLightbox";
@@ -53,42 +53,10 @@ function distributeIntoColumns(
 
 export function GalleryFeed() {
   const { user } = useAuth();
-  const [photos, setPhotos] = useState<GalleryPhoto[]>([]);
-  const [lastDoc, setLastDoc] =
-    useState<QueryDocumentSnapshot<DocumentData> | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { photos, loading, loadingMore, hasMore, error, loadMore, prependPhotos } = useGallery();
   const [selectedPhoto, setSelectedPhoto] = useState<GalleryPhoto | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const columnCount = useColumnCount();
-
-  useEffect(() => {
-    getGalleryPage()
-      .then(({ photos: data, lastDoc: cursor }) => {
-        setPhotos(data);
-        setLastDoc(cursor);
-        setHasMore(cursor !== null);
-      })
-      .catch((err: Error) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, []);
-
-  async function handleLoadMore() {
-    if (!lastDoc || loadingMore) return;
-    setLoadingMore(true);
-    try {
-      const { photos: more, lastDoc: cursor } = await getGalleryPage(lastDoc);
-      setPhotos((prev) => [...prev, ...more]);
-      setLastDoc(cursor);
-      setHasMore(cursor !== null);
-    } catch (err) {
-      setError((err as Error).message);
-    } finally {
-      setLoadingMore(false);
-    }
-  }
 
   const handleAddPhoto = useCallback(
     async (items: { file: File; caption: string; aspectRatio: number }[]) => {
@@ -121,9 +89,9 @@ export function GalleryFeed() {
         aspectRatio: items[i].aspectRatio,
       }));
 
-      setPhotos((prev) => [...newPhotos, ...prev]);
+      prependPhotos(newPhotos);
     },
-    [user]
+    [user, prependPhotos]
   );
 
   const columns = distributeIntoColumns(photos, columnCount);
@@ -220,7 +188,7 @@ export function GalleryFeed() {
               <div className="flex justify-center mt-8">
                 <Button
                   variant="outline"
-                  onClick={handleLoadMore}
+                  onClick={loadMore}
                   disabled={loadingMore}
                   style={{ borderColor: theme.border, color: theme.textSecondary }}
                 >

@@ -61,13 +61,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      setUser(firebaseUser);
-      if (firebaseUser) {
-        await fetchMember(firebaseUser.uid);
-      } else {
-        setMember(null);
+      try {
+        if (firebaseUser) {
+          const email = firebaseUser.email ?? "";
+          const domainOk = email.endsWith(`@${ALLOWED_DOMAIN}`);
+          const allowed = domainOk && (await isEmailAllowed(email));
+
+          if (!domainOk || !allowed) {
+            await firebaseSignOut(auth);
+            setUser(null);
+            setMember(null);
+            setLoading(false);
+            return;
+          }
+
+          setUser(firebaseUser);
+          await fetchMember(firebaseUser.uid);
+        } else {
+          setUser(null);
+          setMember(null);
+        }
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return unsubscribe;

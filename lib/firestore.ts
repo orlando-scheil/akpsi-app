@@ -16,13 +16,17 @@ import {
   startAfter,
   serverTimestamp,
   Timestamp,
+  arrayUnion,
+  arrayRemove,
+  increment,
+  writeBatch,
   type DocumentData,
   type QueryDocumentSnapshot,
   type Unsubscribe,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { Member } from "@/types/member";
-import type { Announcement } from "@/types/announcement";
+import type { Announcement, AnnouncementComment } from "@/types/announcement";
 import type { GalleryPhoto } from "@/types/gallery";
 
 // ─── Converters ──────────────────────────────────────────────────────────────
@@ -44,6 +48,21 @@ function announcementFromDoc(snap: QueryDocumentSnapshot<DocumentData>): Announc
     authorAvatar: d.authorAvatar ?? undefined,
     imageUrls: d.imageUrls ?? [],
     createdAt: toDate(d.createdAt),
+    likedBy: d.likedBy ?? [],
+    commentCount: d.commentCount ?? 0,
+  };
+}
+
+function commentFromDoc(snap: QueryDocumentSnapshot<DocumentData>): AnnouncementComment {
+  const d = snap.data();
+  return {
+    id: snap.id,
+    body: d.body,
+    authorId: d.authorId,
+    authorName: d.authorName,
+    authorAvatar: d.authorAvatar ?? undefined,
+    createdAt: toDate(d.createdAt),
+    updatedAt: d.updatedAt ? toDate(d.updatedAt) : undefined,
   };
 }
 
@@ -132,6 +151,58 @@ export async function createAnnouncement(data: CreateAnnouncementData): Promise<
 /** Delete an announcement by ID. Caller must be the author. */
 export async function deleteAnnouncement(id: string): Promise<void> {
   await deleteDoc(doc(db, "announcements", id));
+}
+
+/** Toggle a like on an announcement. Pass the current liked state to determine add vs. remove. */
+export async function toggleLike(announcementId: string, uid: string, currentlyLiked: boolean): Promise<void> {
+  await updateDoc(doc(db, "announcements", announcementId), {
+    likedBy: currentlyLiked ? arrayRemove(uid) : arrayUnion(uid),
+  });
+}
+
+/** Subscribe to comments on an announcement in real time, oldest first. */
+export function subscribeToComments(
+  announcementId: string,
+  onData: (comments: AnnouncementComment[]) => void,
+  onError?: (err: Error) => void
+): Unsubscribe {
+  const q = query(
+    collection(db, "announcements", announcementId, "comments"),
+    orderBy("createdAt", "asc")
+  );
+  return onSnapshot(q, (snap) => onData(snap.docs.map(commentFromDoc)), onError);
+}
+
+export interface CreateCommentData {
+  body: string;
+  authorId: string;
+  authorName: string;
+  authorAvatar?: string;
+}
+
+/** Add a comment to an announcement and increment the comment count atomically. */
+export async function addComment(announcementId: string, data: CreateCommentData): Promise<void> {
+  const batch = writeBatch(db);
+  const commentRef = doc(collection(db, "announcements", announcementId, "comments"));
+  batch.set(commentRef, { ...data, createdAt: serverTimestamp() });
+  batch.update(doc(db, "announcements", announcementId), { commentCount: increment(1) });
+  await batch.commit();
+}
+
+/** Edit the body of a comment the current user owns. */
+export async function updateComment(announcementId: string, commentId: string, body: string): Promise<void> {
+  await updateDoc(doc(db, "announcements", announcementId, "comments", commentId), {
+    body,
+    updatedAt: serverTimestamp(),
+  });
+}
+
+/** Delete a comment and decrement the announcement's comment count atomically. */
+export async function deleteComment(announcementId: string, commentId: string): Promise<void> {
+  const batch = writeBatch(db);
+  batch.delete(doc(db, "announcements", announcementId, "comments", commentId));
+  batch.update(doc(db, "announcements", announcementId), { commentCount: increment(-1) });
+  await batch.commit();
 }
 
 // ─── Allowlist ────────────────────────────────────────────────────────────────

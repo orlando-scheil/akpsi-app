@@ -20,6 +20,8 @@ export const MOCK_ANNOUNCEMENTS: Announcement[] = [
     authorAvatar: "https://i.pravatar.cc/150?u=sarah",
     imageUrls: ["https://picsum.photos/seed/rush-week/800/400"],
     createdAt: daysAgo(0, 2),
+    likedBy: [],
+    commentCount: 0,
   },
   {
     id: "2",
@@ -30,6 +32,8 @@ export const MOCK_ANNOUNCEMENTS: Announcement[] = [
     authorAvatar: "https://i.pravatar.cc/150?u=james",
     imageUrls: [],
     createdAt: daysAgo(1, 5),
+    likedBy: [],
+    commentCount: 0,
   },
   {
     id: "3",
@@ -39,6 +43,8 @@ export const MOCK_ANNOUNCEMENTS: Announcement[] = [
     authorName: "Dev User",
     imageUrls: ["https://picsum.photos/seed/resume-workshop/800/400"],
     createdAt: daysAgo(3),
+    likedBy: [],
+    commentCount: 0,
   },
   {
     id: "4",
@@ -52,6 +58,8 @@ export const MOCK_ANNOUNCEMENTS: Announcement[] = [
       "https://picsum.photos/seed/bake-sale-2/800/400",
     ],
     createdAt: daysAgo(5, 3),
+    likedBy: [],
+    commentCount: 0,
   },
   {
     id: "5",
@@ -62,6 +70,8 @@ export const MOCK_ANNOUNCEMENTS: Announcement[] = [
     authorAvatar: "https://i.pravatar.cc/150?u=sarah",
     imageUrls: [],
     createdAt: daysAgo(7),
+    likedBy: [],
+    commentCount: 0,
   },
   {
     id: "6",
@@ -72,6 +82,8 @@ export const MOCK_ANNOUNCEMENTS: Announcement[] = [
     authorAvatar: "https://i.pravatar.cc/150?u=james",
     imageUrls: ["https://picsum.photos/seed/pledge-class/800/400"],
     createdAt: daysAgo(12),
+    likedBy: [],
+    commentCount: 0,
   },
 ];
 

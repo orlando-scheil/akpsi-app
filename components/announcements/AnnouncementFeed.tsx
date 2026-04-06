@@ -2,41 +2,21 @@
 // Subscribes to Firestore in real time; uploads images to Storage before writing the doc.
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { PenSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
-import {
-  subscribeToAnnouncements,
-  createAnnouncement,
-  deleteAnnouncement,
-} from "@/lib/firestore";
+import { useAnnouncements } from "@/lib/announcements-context";
+import { createAnnouncement, deleteAnnouncement } from "@/lib/firestore";
 import { uploadAnnouncementImages } from "@/lib/storage";
-import type { Announcement } from "@/types/announcement";
 import { theme } from "@/lib/theme";
 import { AnnouncementCard } from "./AnnouncementCard";
 import { CreateAnnouncementModal } from "./CreateAnnouncementModal";
 
 export function AnnouncementFeed() {
   const { user } = useAuth();
-  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { announcements, loading, error } = useAnnouncements();
   const [modalOpen, setModalOpen] = useState(false);
-
-  useEffect(() => {
-    const unsubscribe = subscribeToAnnouncements(
-      (data) => {
-        setAnnouncements(data);
-        setLoading(false);
-      },
-      (err) => {
-        setError(err.message);
-        setLoading(false);
-      }
-    );
-    return unsubscribe;
-  }, []);
 
   async function handleCreate(data: {
     title: string;
@@ -143,6 +123,11 @@ export function AnnouncementFeed() {
               <AnnouncementCard
                 key={a.id}
                 announcement={a}
+                currentUser={
+                  user
+                    ? { uid: user.uid, name: user.displayName ?? "Member", avatar: user.photoURL ?? undefined }
+                    : null
+                }
                 onDelete={
                   a.authorId === user?.uid
                     ? () => deleteAnnouncement(a.id)
