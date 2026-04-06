@@ -6,6 +6,8 @@ import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
+import { AnnouncementsProvider } from "@/lib/announcements-context";
+import { GalleryProvider } from "@/lib/gallery-context";
 import Navbar from "@/components/Navbar";
 
 export default function AuthLayout({
@@ -40,9 +42,11 @@ export default function AuthLayout({
   if (!user) return null;
 
   return (
-    <>
-      <Navbar />
-      {children}
-    </>
+    <AnnouncementsProvider>
+      <GalleryProvider>
+        <Navbar />
+        {children}
+      </GalleryProvider>
+    </AnnouncementsProvider>
   );
 }
