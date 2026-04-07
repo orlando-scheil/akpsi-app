@@ -129,7 +129,6 @@ async function addMember() {
   const email       = await askRequired("UW email (@uw.edu)");
   const major       = await askRequired("Major");
   const graduationYear = await askNumber("Graduation year", 2026);
-  const pledgeClass = await askRequired("Pledge class (e.g. Alpha, Beta, Gamma…)");
   const pledgeClassQuarter = await askChoice("Pledge class quarter", ["Fall", "Spring"] as const, "Fall");
   const pledgeClassYear = await askNumber("Pledge class year", 2024);
   const status      = await askChoice("Status", ["active", "alumni", "inactive"] as const, "active");
@@ -151,7 +150,6 @@ async function addMember() {
     email,
     major,
     graduationYear,
-    pledgeClass,
     pledgeClassQuarter,
     pledgeClassYear,
     status,

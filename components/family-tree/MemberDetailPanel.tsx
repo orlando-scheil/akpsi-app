@@ -104,7 +104,7 @@ export function MemberDetailPanel({ member, members, onClose }: MemberDetailPane
 
         {/* Details */}
         <div className="flex flex-col gap-1.5 text-xs">
-          <Row label="Pledge Class" value={`${member.pledgeClass} · ${member.pledgeClassQuarter} '${String(member.pledgeClassYear).slice(-2)}`} />
+          <Row label="Pledge Class" value={`${member.pledgeClassQuarter} '${String(member.pledgeClassYear).slice(-2)}`} />
           <Row label="Major" value={member.major} />
           <Row label="Grad Year" value={String(member.graduationYear)} />
           {member.email && <Row label="Email" value={member.email} />}

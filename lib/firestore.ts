@@ -14,6 +14,7 @@ import {
   orderBy,
   limit,
   startAfter,
+  endBefore,
   serverTimestamp,
   Timestamp,
   arrayUnion,
@@ -74,7 +75,6 @@ function memberFromDoc(snap: QueryDocumentSnapshot<DocumentData>): Member {
     lastName: d.lastName,
     preferredName: d.preferredName ?? null,
     profilePhotoUrl: d.profilePhotoUrl ?? null,
-    pledgeClass: d.pledgeClass,
     pledgeClassQuarter: d.pledgeClassQuarter,
     pledgeClassYear: d.pledgeClassYear,
     status: d.status,
@@ -105,6 +105,7 @@ function galleryFromDoc(snap: QueryDocumentSnapshot<DocumentData>): GalleryPhoto
     storagePath: d.storagePath ?? undefined,
     caption: d.caption ?? undefined,
     uploadedBy: d.uploadedBy,
+    uploadedByUid: d.uploadedByUid ?? undefined,
     uploadedAt: toDate(d.uploadedAt),
     aspectRatio: d.aspectRatio ?? undefined,
   };
@@ -326,16 +327,77 @@ export interface CreateGalleryPhotoData {
   storagePath: string;
   caption?: string;
   uploadedBy: string;
+  /** Firebase Auth UID of the uploader — stored so the delete button can be gated to the owner. */
+  uploadedByUid?: string;
   aspectRatio?: number;
+}
+
+/**
+ * Fetch a page of gallery photos in a pseudo-random order using the stored `random` field.
+ *
+ * How the random cursor technique works:
+ * ─────────────────────────────────────
+ * Every gallery document stores a `random` field: a float between 0 and 1 assigned at
+ * upload time via Math.random(). Firestore maintains an index over this field.
+ *
+ * To get a random page we:
+ *   1. Pick a random float (the "cursor") between 0 and 1.
+ *   2. Query: orderBy("random").startAfter(cursor).limit(PAGE_SIZE)
+ *      This jumps to a random position in the collection and grabs the next N documents.
+ *
+ * Wraparound:
+ * ───────────
+ * If the cursor lands near the end of the [0, 1) range there won't be enough documents
+ * above it to fill a full page. In that case we run a second query from the beginning
+ * of the range to fill the remaining slots. Because of this wraparound, we set
+ * hasMore = false after the initial shuffle — "Load more" isn't supported in shuffle
+ * mode (the user can tap Shuffle again for a fresh random batch instead).
+ *
+ * Cost: exactly PAGE_SIZE document reads per shuffle click, regardless of collection size.
+ *
+ * Limitation: only documents that have a `random` field are eligible. Photos uploaded
+ * before this feature was added need a one-time migration (see scripts/add-random-field.ts).
+ */
+export async function getShuffledGalleryPage(): Promise<{
+  photos: GalleryPhoto[];
+}> {
+  const randomCursor = Math.random();
+
+  // Query 1: from the random cursor to the end of the [0, 1) range
+  const q1 = query(
+    galleryCol,
+    orderBy("random"),
+    startAfter(randomCursor),
+    limit(GALLERY_PAGE_SIZE)
+  );
+  const snap1 = await getDocs(q1);
+  const photos = snap1.docs.map(galleryFromDoc);
+
+  // Wraparound: if we didn't fill a full page, the cursor landed near the top of the
+  // range. Fetch the remaining slots from [0, cursor) to avoid duplicating the docs
+  // already returned by q1 (which covers (cursor, 1]).
+  if (photos.length < GALLERY_PAGE_SIZE) {
+    const remaining = GALLERY_PAGE_SIZE - photos.length;
+    const q2 = query(galleryCol, orderBy("random"), endBefore(randomCursor), limit(remaining));
+    const snap2 = await getDocs(q2);
+    photos.push(...snap2.docs.map(galleryFromDoc));
+  }
+
+  return { photos };
 }
 
 /** Add a new gallery photo document. Returns the new document ID. */
 export async function createGalleryPhoto(data: CreateGalleryPhotoData): Promise<string> {
-  const { caption, aspectRatio, ...required } = data;
+  const { caption, aspectRatio, uploadedByUid, ...required } = data;
   const ref = await addDoc(galleryCol, {
     ...required,
     ...(caption !== undefined && { caption }),
     ...(aspectRatio !== undefined && { aspectRatio }),
+    ...(uploadedByUid !== undefined && { uploadedByUid }),
+    // A random float [0, 1) stored at write time. Used by getShuffledGalleryPage to
+    // efficiently sample random documents without fetching the entire collection.
+    // See getShuffledGalleryPage for the full explanation of how this works.
+    random: Math.random(),
     uploadedAt: serverTimestamp(),
   });
   return ref.id;

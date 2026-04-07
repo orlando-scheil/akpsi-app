@@ -1,14 +1,15 @@
 // Main gallery component — masonry column layout with photo lightbox and add photo modal.
 // Fetches from Firestore with pagination; uploads to Firebase Storage on add.
+// Supports shuffle mode (random sampling) and owner-only photo deletion.
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { ImagePlus } from "lucide-react";
+import { ImagePlus, Shuffle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { useGallery } from "@/lib/gallery-context";
-import { createGalleryPhoto } from "@/lib/firestore";
-import { uploadGalleryPhoto } from "@/lib/storage";
+import { createGalleryPhoto, deleteGalleryPhoto } from "@/lib/firestore";
+import { uploadGalleryPhoto, deleteStorageFile } from "@/lib/storage";
 import type { GalleryPhoto } from "@/types/gallery";
 import { theme } from "@/lib/theme";
 import { GalleryPhotoCard } from "./GalleryPhotoCard";
@@ -53,7 +54,19 @@ function distributeIntoColumns(
 
 export function GalleryFeed() {
   const { user } = useAuth();
-  const { photos, loading, loadingMore, hasMore, error, loadMore, prependPhotos } = useGallery();
+  const {
+    photos,
+    loading,
+    loadingMore,
+    hasMore,
+    error,
+    shuffleLoading,
+    isShuffled,
+    loadMore,
+    prependPhotos,
+    shufflePhotos,
+    removePhoto,
+  } = useGallery();
   const [selectedPhoto, setSelectedPhoto] = useState<GalleryPhoto | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const columnCount = useColumnCount();
@@ -74,17 +87,20 @@ export function GalleryFeed() {
             storagePath,
             caption: items[i].caption || undefined,
             uploadedBy: displayName,
+            uploadedByUid: uid,
             aspectRatio: items[i].aspectRatio,
           })
         )
       );
 
+      // Optimistically prepend the new photos so they appear immediately without a re-fetch.
       const newPhotos: GalleryPhoto[] = uploaded.map(({ url, storagePath }, i) => ({
         id: crypto.randomUUID(),
         imageUrl: url,
         storagePath,
         caption: items[i].caption || undefined,
         uploadedBy: displayName,
+        uploadedByUid: uid,
         uploadedAt: new Date(),
         aspectRatio: items[i].aspectRatio,
       }));
@@ -92,6 +108,20 @@ export function GalleryFeed() {
       prependPhotos(newPhotos);
     },
     [user, prependPhotos]
+  );
+
+  // Delete the currently open photo from both Firestore and Firebase Storage,
+  // then remove it from the local cache and close the lightbox.
+  const handleDelete = useCallback(
+    async (photo: GalleryPhoto) => {
+      await Promise.all([
+        deleteGalleryPhoto(photo.id),
+        photo.storagePath ? deleteStorageFile(photo.storagePath) : Promise.resolve(),
+      ]);
+      removePhoto(photo.id);
+      setSelectedPhoto(null);
+    },
+    [removePhoto]
   );
 
   const columns = distributeIntoColumns(photos, columnCount);
@@ -123,20 +153,50 @@ export function GalleryFeed() {
               style={{ background: theme.gold }}
             />
           </div>
-          <Button
-            onClick={() => setModalOpen(true)}
-            className="gap-2 text-sm font-semibold border-0 shadow-sm transition-all"
-            style={{ background: theme.gold, color: theme.primaryDark }}
-            onMouseEnter={(e) =>
-              ((e.currentTarget as HTMLButtonElement).style.background = theme.goldHover)
-            }
-            onMouseLeave={(e) =>
-              ((e.currentTarget as HTMLButtonElement).style.background = theme.gold)
-            }
-          >
-            <ImagePlus className="h-4 w-4" />
-            Add Photo
-          </Button>
+
+          <div className="flex items-center gap-2 mb-0.5">
+            {/* Shuffle button — toggles between random and newest-first ordering.
+                Highlighted in gold when shuffle mode is active. */}
+            <Button
+              variant="outline"
+              onClick={shufflePhotos}
+              disabled={shuffleLoading || loading}
+              className="gap-2 text-sm font-semibold shadow-sm transition-all"
+              style={
+                isShuffled
+                  ? { background: theme.gold, color: theme.primaryDark, borderColor: theme.gold }
+                  : { borderColor: theme.border, color: theme.textSecondary }
+              }
+            >
+              {shuffleLoading ? (
+                <div
+                  className="h-4 w-4 rounded-full border-2 animate-spin"
+                  style={{
+                    borderColor: `${theme.primary}40`,
+                    borderTopColor: isShuffled ? theme.primaryDark : theme.primary,
+                  }}
+                />
+              ) : (
+                <Shuffle className="h-4 w-4" />
+              )}
+              {isShuffled ? "Shuffled" : "Shuffle"}
+            </Button>
+
+            <Button
+              onClick={() => setModalOpen(true)}
+              className="gap-2 text-sm font-semibold border-0 shadow-sm transition-all"
+              style={{ background: theme.gold, color: theme.primaryDark }}
+              onMouseEnter={(e) =>
+                ((e.currentTarget as HTMLButtonElement).style.background = theme.goldHover)
+              }
+              onMouseLeave={(e) =>
+                ((e.currentTarget as HTMLButtonElement).style.background = theme.gold)
+              }
+            >
+              <ImagePlus className="h-4 w-4" />
+              Add Photo
+            </Button>
+          </div>
         </div>
 
         {loading && (
@@ -204,6 +264,8 @@ export function GalleryFeed() {
         <GalleryLightbox
           photo={selectedPhoto}
           onClose={() => setSelectedPhoto(null)}
+          currentUserUid={user?.uid}
+          onDelete={handleDelete}
         />
       )}
 

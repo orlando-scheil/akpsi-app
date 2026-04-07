@@ -9,8 +9,7 @@ export interface SocialLink {
  * Firestore path: `users/{uid}`
  *
  * Status values: "active" | "alumni" | "inactive"
- * Pledge classes use Greek letter names (Alpha, Beta, Gamma, etc.)
- * with the quarter/year the class crossed over (Fall or Spring at UW).
+ * Pledge classes use the quarter/year the class crossed over (Fall or Spring at UW).
  */
 export interface Member {
   uid: string;
@@ -18,7 +17,6 @@ export interface Member {
   lastName: string;
   preferredName: string | null;
   profilePhotoUrl: string | null;
-  pledgeClass: string;
   pledgeClassQuarter: "Fall" | "Spring";
   pledgeClassYear: number;
   status: "active" | "alumni" | "inactive";
@@ -45,7 +43,7 @@ export interface Member {
 
 export type MemberSortKey =
   | "lastName"
-  | "pledgeClass"
+  | "pledgeClassYear"
   | "major"
   | "graduationYear"
   | "status"

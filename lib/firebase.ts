@@ -22,8 +22,11 @@ const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0
 
 // Use IndexedDB persistence so OAuth redirect state survives storage partitioning
 // on mobile browsers (iOS Safari ITP, Chrome storage partitioning).
+// Guard against SSR: browser-specific APIs (IndexedDB, popupRedirectResolver) are
+// undefined in the server context and cause "Expected a class definition" assertions.
 // try/catch guards against "already-initialized" on HMR module re-evaluation.
 function getFirebaseAuth() {
+  if (typeof window === "undefined") return getAuth(app);
   try {
     return initializeAuth(app, {
       persistence: [indexedDBLocalPersistence, browserLocalPersistence],
