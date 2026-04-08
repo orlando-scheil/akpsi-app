@@ -21,6 +21,7 @@ import {
   arrayRemove,
   increment,
   writeBatch,
+  deleteField,
   type DocumentData,
   type QueryDocumentSnapshot,
   type Unsubscribe,
@@ -29,6 +30,7 @@ import { db } from "@/lib/firebase";
 import type { Member } from "@/types/member";
 import type { Announcement, AnnouncementComment } from "@/types/announcement";
 import type { GalleryPhoto } from "@/types/gallery";
+import type { Event, CreateEventData, UpdateEventData } from "@/types/event";
 
 // ─── Converters ──────────────────────────────────────────────────────────────
 
@@ -406,4 +408,75 @@ export async function createGalleryPhoto(data: CreateGalleryPhotoData): Promise<
 /** Delete a gallery photo document by ID. */
 export async function deleteGalleryPhoto(id: string): Promise<void> {
   await deleteDoc(doc(db, "gallery", id));
+}
+
+// ─── Events ───────────────────────────────────────────────────────────────────
+
+const eventsCol = collection(db, "events");
+
+function eventFromDoc(snap: QueryDocumentSnapshot<DocumentData>): Event {
+  const d = snap.data();
+  return {
+    id: snap.id,
+    title: d.title,
+    description: d.description,
+    startDate: toDate(d.startDate),
+    endDate: d.endDate ? toDate(d.endDate) : undefined,
+    location: d.location ?? undefined,
+    link: d.link ?? undefined,
+    authorId: d.authorId,
+    authorName: d.authorName,
+    authorAvatar: d.authorAvatar ?? undefined,
+    createdAt: toDate(d.createdAt),
+    linkedAnnouncementId: d.linkedAnnouncementId ?? undefined,
+  };
+}
+
+/**
+ * Subscribe to all events in real time, ordered by startDate ascending.
+ * Returns an unsubscribe function — call it on component unmount.
+ */
+export function subscribeToEvents(
+  onData: (events: Event[]) => void,
+  onError?: (err: Error) => void
+): Unsubscribe {
+  const q = query(eventsCol, orderBy("startDate", "asc"));
+  return onSnapshot(
+    q,
+    (snap) => onData(snap.docs.map(eventFromDoc)),
+    onError
+  );
+}
+
+/** Create a new event. Returns the new document ID. */
+export async function createEvent(data: CreateEventData): Promise<string> {
+  const { startDate, endDate, location, link, authorAvatar, linkedAnnouncementId, ...rest } = data;
+  const ref = await addDoc(eventsCol, {
+    ...rest,
+    startDate: Timestamp.fromDate(startDate),
+    ...(endDate !== undefined && { endDate: Timestamp.fromDate(endDate) }),
+    ...(location !== undefined && { location }),
+    ...(link !== undefined && { link }),
+    ...(authorAvatar !== undefined && { authorAvatar }),
+    ...(linkedAnnouncementId !== undefined && { linkedAnnouncementId }),
+    createdAt: serverTimestamp(),
+  });
+  return ref.id;
+}
+
+/** Partially update an event's mutable fields. Pass null to clear an optional field. */
+export async function updateEvent(id: string, data: UpdateEventData): Promise<void> {
+  const payload: Record<string, unknown> = {};
+  if (data.title !== undefined) payload.title = data.title;
+  if (data.description !== undefined) payload.description = data.description;
+  if (data.startDate !== undefined) payload.startDate = Timestamp.fromDate(data.startDate);
+  if ("endDate" in data) payload.endDate = data.endDate ? Timestamp.fromDate(data.endDate) : deleteField();
+  if ("location" in data) payload.location = data.location ?? deleteField();
+  if ("link" in data) payload.link = data.link ?? deleteField();
+  await updateDoc(doc(db, "events", id), payload);
+}
+
+/** Delete an event by ID. Caller must be the author or an admin. */
+export async function deleteEvent(id: string): Promise<void> {
+  await deleteDoc(doc(db, "events", id));
 }

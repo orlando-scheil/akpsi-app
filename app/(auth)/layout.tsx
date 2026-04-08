@@ -8,6 +8,7 @@ import { Loader2 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { AnnouncementsProvider } from "@/lib/announcements-context";
 import { GalleryProvider } from "@/lib/gallery-context";
+import { EventsProvider } from "@/lib/events-context";
 import Navbar from "@/components/Navbar";
 
 export default function AuthLayout({
@@ -44,8 +45,10 @@ export default function AuthLayout({
   return (
     <AnnouncementsProvider>
       <GalleryProvider>
-        <Navbar />
-        {children}
+        <EventsProvider>
+          <Navbar />
+          {children}
+        </EventsProvider>
       </GalleryProvider>
     </AnnouncementsProvider>
   );
