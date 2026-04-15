@@ -22,6 +22,8 @@ import type { Member, SocialLink } from "@/types/member";
 
 interface ProfileFormProps {
   uid: string;
+  /** Firebase Auth email — used on first-time creation when existing is null */
+  email: string;
   /** Existing member doc — null if this is first-time setup */
   existing: Member | null;
   /** Called after a successful save so the parent can refresh auth context */
@@ -32,7 +34,7 @@ const CURRENT_YEAR = new Date().getFullYear();
 const GRAD_YEARS = Array.from({ length: 8 }, (_, i) => CURRENT_YEAR - 1 + i);
 const PLEDGE_YEARS = Array.from({ length: 10 }, (_, i) => CURRENT_YEAR - 7 + i);
 
-export function ProfileForm({ uid, existing, onSaved }: ProfileFormProps) {
+export function ProfileForm({ uid, email, existing, onSaved }: ProfileFormProps) {
   // ── Required fields ──────────────────────────────────────────────────────────
   const [firstName, setFirstName] = useState(existing?.firstName ?? "");
   const [lastName, setLastName] = useState(existing?.lastName ?? "");
@@ -148,7 +150,7 @@ export function ProfileForm({ uid, existing, onSaved }: ProfileFormProps) {
         familyName: existing?.familyName ?? null,
         bigUid,
         bigName: bigName.trim() || null,
-        email: existing?.email ?? "",
+        email: existing?.email ?? email,
         phone: phone.trim() || null,
         preferredContact: preferredContact || null,
         bio: bio.trim() || null,

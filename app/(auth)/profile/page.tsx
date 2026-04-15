@@ -25,7 +25,7 @@ export default function ProfilePage() {
         )}
       </div>
 
-      <ProfileForm uid={user.uid} existing={member} onSaved={refreshMember} />
+      <ProfileForm uid={user.uid} email={user.email ?? ""} existing={member} onSaved={refreshMember} />
     </div>
   );
 }
