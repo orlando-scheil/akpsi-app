@@ -22,6 +22,8 @@ import type { Member, SocialLink } from "@/types/member";
 
 interface ProfileFormProps {
   uid: string;
+  /** Firebase Auth email — used on first-time creation when existing is null */
+  email: string;
   /** Existing member doc — null if this is first-time setup */
   existing: Member | null;
   /** Called after a successful save so the parent can refresh auth context */
@@ -32,7 +34,7 @@ const CURRENT_YEAR = new Date().getFullYear();
 const GRAD_YEARS = Array.from({ length: 8 }, (_, i) => CURRENT_YEAR - 1 + i);
 const PLEDGE_YEARS = Array.from({ length: 10 }, (_, i) => CURRENT_YEAR - 7 + i);
 
-export function ProfileForm({ uid, existing, onSaved }: ProfileFormProps) {
+export function ProfileForm({ uid, email, existing, onSaved }: ProfileFormProps) {
   // ── Required fields ──────────────────────────────────────────────────────────
   const [firstName, setFirstName] = useState(existing?.firstName ?? "");
   const [lastName, setLastName] = useState(existing?.lastName ?? "");
@@ -40,7 +42,6 @@ export function ProfileForm({ uid, existing, onSaved }: ProfileFormProps) {
   const [graduationYear, setGraduationYear] = useState(
     existing?.graduationYear ?? CURRENT_YEAR + 2
   );
-  const [pledgeClass, setPledgeClass] = useState(existing?.pledgeClass ?? "");
   const [pledgeClassQuarter, setPledgeClassQuarter] = useState<"Fall" | "Spring">(
     existing?.pledgeClassQuarter ?? "Fall"
   );
@@ -113,7 +114,7 @@ export function ProfileForm({ uid, existing, onSaved }: ProfileFormProps) {
     firstName.trim() &&
     lastName.trim() &&
     major.trim() &&
-    pledgeClass.trim();
+    bigName.trim();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -141,7 +142,6 @@ export function ProfileForm({ uid, existing, onSaved }: ProfileFormProps) {
         profilePhotoUrl,
         major: major.trim(),
         graduationYear,
-        pledgeClass: pledgeClass.trim(),
         pledgeClassQuarter,
         pledgeClassYear,
         status,
@@ -150,7 +150,7 @@ export function ProfileForm({ uid, existing, onSaved }: ProfileFormProps) {
         familyName: existing?.familyName ?? null,
         bigUid,
         bigName: bigName.trim() || null,
-        email: existing?.email ?? "",
+        email: existing?.email ?? email,
         phone: phone.trim() || null,
         preferredContact: preferredContact || null,
         bio: bio.trim() || null,
@@ -252,18 +252,9 @@ export function ProfileForm({ uid, existing, onSaved }: ProfileFormProps) {
           <Input value={major} onChange={(e) => setMajor(e.target.value)} required />
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium">Pledge class</label>
-            <Input
-              placeholder="e.g. Alpha, Beta…"
-              value={pledgeClass}
-              onChange={(e) => setPledgeClass(e.target.value)}
-              required
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium">Quarter</label>
+            <label className="text-sm font-medium">Pledge class quarter</label>
             <Select
               value={pledgeClassQuarter}
               onValueChange={(v) => setPledgeClassQuarter(v as "Fall" | "Spring")}
@@ -276,7 +267,7 @@ export function ProfileForm({ uid, existing, onSaved }: ProfileFormProps) {
             </Select>
           </div>
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium">Year</label>
+            <label className="text-sm font-medium">Pledge class year</label>
             <Select
               value={String(pledgeClassYear)}
               onValueChange={(v) => setPledgeClassYear(Number(v))}
@@ -289,6 +280,20 @@ export function ProfileForm({ uid, existing, onSaved }: ProfileFormProps) {
               </SelectContent>
             </Select>
           </div>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium">Big</label>
+          <BigCombobox
+            members={members}
+            value={bigName}
+            bigUid={bigUid}
+            onChange={(name, uid) => {
+              setBigName(name);
+              setBigUid(uid);
+            }}
+            placeholder="Search by name…"
+          />
         </div>
 
         <div className="flex flex-col gap-2">
@@ -335,28 +340,13 @@ export function ProfileForm({ uid, existing, onSaved }: ProfileFormProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium">Chapter role</label>
-            <Input
-              placeholder="e.g. President, VP Finance"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium">Big</label>
-            <BigCombobox
-              members={members}
-              value={bigName}
-              bigUid={bigUid}
-              onChange={(name, uid) => {
-                setBigName(name);
-                setBigUid(uid);
-              }}
-              placeholder="Search by name…"
-            />
-          </div>
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium">Chapter role</label>
+          <Input
+            placeholder="e.g. President, VP Finance"
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+          />
         </div>
 
         <div className="grid grid-cols-2 gap-4">

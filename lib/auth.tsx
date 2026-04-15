@@ -11,6 +11,7 @@ import {
 import {
   onAuthStateChanged,
   signInWithPopup,
+  getRedirectResult,
   signOut as firebaseSignOut,
   GoogleAuthProvider,
   type User,
@@ -59,6 +60,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       fetchMember(MOCK_USER.uid).finally(() => setLoading(false));
       return;
     }
+
+    // Resolve any pending redirect result before subscribing to auth state.
+    // This is a no-op if no redirect is in progress; handles the case where
+    // signInWithPopup was blocked on mobile and fell back to a redirect flow.
+    getRedirectResult(auth).catch(() => null);
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       try {

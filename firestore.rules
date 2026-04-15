@@ -41,5 +41,13 @@ service cloud.firestore {
       allow update, delete: if request.auth != null
         && request.auth.uid == resource.data.uploadedBy;
     }
+
+    // Events: any member can read and create; only the author can update or delete
+    match /events/{id} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null
+        && request.auth.uid == resource.data.authorId;
+    }
   }
 }

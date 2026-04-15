@@ -59,7 +59,7 @@ export function MemberRow({ member }: MemberRowProps) {
           className="text-xs"
           style={{ borderColor: theme.border, color: theme.textSecondary }}
         >
-          {`${member.pledgeClassQuarter} '${String(member.pledgeClassYear).slice(-2)} · ${member.pledgeClass}`}
+          {`${member.pledgeClassQuarter} '${String(member.pledgeClassYear).slice(-2)}`}
         </Badge>
       </TableCell>
 

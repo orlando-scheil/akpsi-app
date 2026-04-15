@@ -9,6 +9,7 @@ import {
   Users,
   GitBranch,
   Images,
+  CalendarDays,
   LogOut,
   User,
   type LucideIcon,
@@ -27,6 +28,7 @@ import { theme } from "@/lib/theme";
 
 const NAV_ITEMS: { label: string; href: string; icon: LucideIcon }[] = [
   { label: "Announcements", href: "/announcements", icon: Megaphone },
+  { label: "Events", href: "/events", icon: CalendarDays },
   { label: "Directory", href: "/members", icon: Users },
   { label: "Gallery", href: "/gallery", icon: Images },
   { label: "Family Tree", href: "/family-tree", icon: GitBranch },

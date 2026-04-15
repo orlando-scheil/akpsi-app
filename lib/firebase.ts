@@ -1,5 +1,11 @@
 import { initializeApp, getApps } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import {
+  initializeAuth,
+  getAuth,
+  indexedDBLocalPersistence,
+  browserLocalPersistence,
+  browserPopupRedirectResolver,
+} from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
@@ -14,7 +20,23 @@ const firebaseConfig = {
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 
-export const auth = getAuth(app);
+// Use IndexedDB persistence so OAuth redirect state survives storage partitioning
+// on mobile browsers (iOS Safari ITP, Chrome storage partitioning).
+// Guard against SSR: browser-specific APIs (IndexedDB, popupRedirectResolver) are
+// undefined in the server context and cause "Expected a class definition" assertions.
+// try/catch guards against "already-initialized" on HMR module re-evaluation.
+function getFirebaseAuth() {
+  if (typeof window === "undefined") return getAuth(app);
+  try {
+    return initializeAuth(app, {
+      persistence: [indexedDBLocalPersistence, browserLocalPersistence],
+      popupRedirectResolver: browserPopupRedirectResolver,
+    });
+  } catch {
+    return getAuth(app);
+  }
+}
+export const auth = getFirebaseAuth();
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 export default app;

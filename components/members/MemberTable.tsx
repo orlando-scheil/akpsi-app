@@ -22,7 +22,7 @@ interface Column {
 
 const COLUMNS: Column[] = [
   { key: "lastName", label: "Name", width: "30%" },
-  { key: "pledgeClass", label: "Pledge Class", width: "18%" },
+  { key: "pledgeClassYear", label: "Pledge Class", width: "18%" },
   { key: "major", label: "Major", width: "22%" },
   { key: "graduationYear", label: "Grad Year", width: "10%" },
   { key: "status", label: "Status", width: "10%" },

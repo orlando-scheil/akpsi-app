@@ -15,7 +15,6 @@ function memberMatchesToken(m: Member, token: string): boolean {
     m.firstName,
     m.lastName,
     m.preferredName,
-    m.pledgeClass,
     m.pledgeClassQuarter,
     m.major,
     m.status,
@@ -51,7 +50,7 @@ export function sortMembers(
       return a.lastName.localeCompare(b.lastName);
     }
 
-    if (key === "pledgeClass") {
+    if (key === "pledgeClassYear") {
       const yearDiff = a.pledgeClassYear - b.pledgeClassYear;
       if (yearDiff !== 0) return yearDiff;
       const qDiff =
