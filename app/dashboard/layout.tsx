@@ -1,5 +1,5 @@
-// Auth-gated layout — wraps all routes under (auth)/.
-// Redirects unauthenticated users to /login; redirects users without a profile to /profile.
+// Auth-gated layout — wraps all routes under app/dashboard/.
+// Redirects unauthenticated users to /login; redirects users without a profile to /dashboard/profile.
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
@@ -11,7 +11,7 @@ import { GalleryProvider } from "@/lib/gallery-context";
 import { EventsProvider } from "@/lib/events-context";
 import Navbar from "@/components/Navbar";
 
-export default function AuthLayout({
+export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -26,9 +26,8 @@ export default function AuthLayout({
       router.replace("/login");
       return;
     }
-    // If the user has no profile doc and isn't already on /profile, send them there
-    if (!member && pathname !== "/profile") {
-      router.replace("/profile");
+    if (!member && pathname !== "/dashboard/profile") {
+      router.replace("/dashboard/profile");
     }
   }, [user, member, loading, pathname, router]);
 
