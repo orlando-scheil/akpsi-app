@@ -27,11 +27,11 @@ import { useAuth } from "@/lib/auth";
 import { theme } from "@/lib/theme";
 
 const NAV_ITEMS: { label: string; href: string; icon: LucideIcon }[] = [
-  { label: "Announcements", href: "/announcements", icon: Megaphone },
-  { label: "Events", href: "/events", icon: CalendarDays },
-  { label: "Directory", href: "/members", icon: Users },
-  { label: "Gallery", href: "/gallery", icon: Images },
-  { label: "Family Tree", href: "/family-tree", icon: GitBranch },
+  { label: "Announcements", href: "/dashboard/announcements", icon: Megaphone },
+  { label: "Events", href: "/dashboard/events", icon: CalendarDays },
+  { label: "Directory", href: "/dashboard/members", icon: Users },
+  { label: "Gallery", href: "/dashboard/gallery", icon: Images },
+  { label: "Family Tree", href: "/dashboard/family-tree", icon: GitBranch },
 ];
 
 export default function Navbar() {
@@ -56,7 +56,7 @@ export default function Navbar() {
     >
       <div className="relative flex h-[60px] items-center px-5">
         {/* Logo */}
-        <Link href="/announcements" className="flex items-center gap-2.5 no-underline shrink-0">
+        <Link href="/" className="flex items-center gap-2.5 no-underline shrink-0">
           <span
             className="text-[26px] text-white leading-none tracking-tight"
             style={{ fontFamily: "var(--font-display, serif)", fontWeight: 700 }}
@@ -129,7 +129,7 @@ export default function Navbar() {
 
           <DropdownMenuContent align="end" className="w-44">
             <DropdownMenuItem
-              onClick={() => router.push("/profile")}
+              onClick={() => router.push("/dashboard/profile")}
               className="cursor-pointer"
             >
               <User className="h-4 w-4 mr-2" />
