@@ -165,7 +165,7 @@ async function addMember() {
     industries,
     joinedAt: admin.firestore.Timestamp.now(),
     lastActive: admin.firestore.Timestamp.now(),
-    isAdmin: false,
+    siteRole: 'member',
   };
 
   await docRef.set(memberData);

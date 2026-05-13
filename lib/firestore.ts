@@ -95,7 +95,7 @@ function memberFromDoc(snap: QueryDocumentSnapshot<DocumentData>): Member {
     industries: d.industries ?? [],
     joinedAt: toDate(d.joinedAt),
     lastActive: toDate(d.lastActive),
-    isAdmin: d.isAdmin ?? false,
+    siteRole: d.siteRole ?? 'member',
   };
 }
 
@@ -210,10 +210,11 @@ export async function deleteComment(announcementId: string, commentId: string): 
 
 // ─── Allowlist ────────────────────────────────────────────────────────────────
 
-/** Returns true if the email exists in the AKPsi-approved allowlist. */
-export async function isEmailAllowed(email: string): Promise<boolean> {
+/** Returns the siteRole for the email if it exists in the allowlist, null otherwise. */
+export async function getAllowedRole(email: string): Promise<string | null> {
   const snap = await getDoc(doc(db, "allowedEmails", email.toLowerCase()));
-  return snap.exists();
+  if (!snap.exists()) return null;
+  return (snap.data().role as string) ?? 'member';
 }
 
 // ─── Members ──────────────────────────────────────────────────────────────────

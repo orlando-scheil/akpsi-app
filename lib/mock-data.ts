@@ -119,7 +119,7 @@ export const MOCK_MEMBERS: Member[] = [
     industries: ["Technology", "Finance"],
     joinedAt: new Date("2023-09-15"),
     lastActive: new Date(),
-    isAdmin: true,
+    siteRole: 'admin',
   },
   {
     uid: "user-james",
@@ -147,7 +147,7 @@ export const MOCK_MEMBERS: Member[] = [
     industries: ["Finance", "Consulting"],
     joinedAt: new Date("2023-09-15"),
     lastActive: new Date(),
-    isAdmin: true,
+    siteRole: 'admin',
   },
   {
     uid: "user-hannah",
@@ -175,7 +175,7 @@ export const MOCK_MEMBERS: Member[] = [
     industries: ["Supply Chain", "Manufacturing"],
     joinedAt: new Date("2023-09-15"),
     lastActive: new Date("2025-05-20"),
-    isAdmin: false,
+    siteRole: 'member',
   },
   {
     uid: "user-priya",
@@ -203,7 +203,7 @@ export const MOCK_MEMBERS: Member[] = [
     industries: ["Technology", "Consulting"],
     joinedAt: new Date("2023-01-10"),
     lastActive: new Date("2025-06-01"),
-    isAdmin: false,
+    siteRole: 'member',
   },
   {
     uid: "user-marcus",
@@ -229,7 +229,7 @@ export const MOCK_MEMBERS: Member[] = [
     industries: ["Marketing", "Entrepreneurship"],
     joinedAt: new Date("2024-01-12"),
     lastActive: new Date(),
-    isAdmin: false,
+    siteRole: 'member',
   },
   {
     uid: "user-emily",
@@ -258,7 +258,7 @@ export const MOCK_MEMBERS: Member[] = [
     industries: ["Marketing", "Media"],
     joinedAt: new Date("2024-09-20"),
     lastActive: new Date(),
-    isAdmin: false,
+    siteRole: 'member',
   },
   {
     uid: "user-david",
@@ -284,7 +284,7 @@ export const MOCK_MEMBERS: Member[] = [
     industries: ["Finance", "Real Estate"],
     joinedAt: new Date("2024-09-20"),
     lastActive: new Date(),
-    isAdmin: false,
+    siteRole: 'member',
   },
   {
     uid: "user-jordan",
@@ -313,7 +313,7 @@ export const MOCK_MEMBERS: Member[] = [
     industries: ["Technology", "Entrepreneurship"],
     joinedAt: new Date("2024-09-20"),
     lastActive: new Date(),
-    isAdmin: false,
+    siteRole: 'member',
   },
   {
     uid: "user-ryan",
@@ -341,7 +341,7 @@ export const MOCK_MEMBERS: Member[] = [
     industries: ["Finance", "Accounting"],
     joinedAt: new Date("2025-01-08"),
     lastActive: new Date(),
-    isAdmin: false,
+    siteRole: 'member',
   },
   {
     uid: "user-aisha",
@@ -369,7 +369,7 @@ export const MOCK_MEMBERS: Member[] = [
     industries: ["Technology"],
     joinedAt: new Date("2025-01-08"),
     lastActive: new Date(),
-    isAdmin: false,
+    siteRole: 'member',
   },
   {
     uid: "user-sofia",
@@ -395,7 +395,7 @@ export const MOCK_MEMBERS: Member[] = [
     industries: ["Finance"],
     joinedAt: new Date("2025-09-15"),
     lastActive: new Date(),
-    isAdmin: false,
+    siteRole: 'member',
   },
   {
     uid: "user-kevin",
@@ -423,7 +423,7 @@ export const MOCK_MEMBERS: Member[] = [
     industries: ["Technology", "Consulting"],
     joinedAt: new Date("2025-09-15"),
     lastActive: new Date(),
-    isAdmin: false,
+    siteRole: 'member',
   },
 ];
 

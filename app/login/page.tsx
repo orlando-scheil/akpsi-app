@@ -1,5 +1,5 @@
 // Login page — Google sign-in restricted to @uw.edu accounts.
-// Redirects authenticated users to /announcements.
+// Redirects authenticated users to /dashboard/announcements.
 "use client";
 
 import { useEffect, useState } from "react";
@@ -28,7 +28,7 @@ export default function LoginPage() {
   const [signingIn, setSigningIn] = useState(false);
 
   useEffect(() => {
-    if (user) router.replace("/announcements");
+    if (user) router.replace("/dashboard/announcements");
   }, [user, router]);
 
   if (loading) {
@@ -46,7 +46,7 @@ export default function LoginPage() {
     setSigningIn(true);
     try {
       await signInWithGoogle();
-      router.replace("/announcements");
+      router.replace("/dashboard/announcements");
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Sign-in failed. Please try again."
