@@ -13,6 +13,7 @@ import { useEvents } from "@/lib/events-context";
 import { deleteEvent, deleteAnnouncement } from "@/lib/firestore";
 import { downloadICS } from "@/lib/events";
 import { theme } from "@/lib/theme";
+import { isAdmin } from "@/lib/roles";
 import type { Event } from "@/types/event";
 
 type View = "list" | "calendar";
@@ -25,7 +26,7 @@ export function EventsFeed(): JSX.Element {
   /** null = closed, "new" = create mode, Event object = edit mode */
   const [formTarget, setFormTarget] = useState<Event | "new" | null>(null);
 
-  const isAdmin = member?.isAdmin ?? false;
+  const adminUser = member ? isAdmin(member) : false;
 
   async function handleDelete(id: string): Promise<void> {
     const ev = events.find((e) => e.id === id);
@@ -42,7 +43,7 @@ export function EventsFeed(): JSX.Element {
   const sharedViewProps = {
     events,
     currentUserUid: user?.uid ?? null,
-    isAdmin,
+    isAdmin: adminUser,
     onEdit: (ev: Event) => setFormTarget(ev),
     onDelete: handleDelete,
   };

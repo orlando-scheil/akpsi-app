@@ -158,7 +158,7 @@ export function ProfileForm({ uid, email, existing, onSaved }: ProfileFormProps)
         socialLinks: validLinks,
         joinedAt: existing?.joinedAt ?? new Date(),
         lastActive: new Date(),
-        isAdmin: existing?.isAdmin ?? false,
+        siteRole: existing?.siteRole ?? 'member',
       };
 
       if (existing) {
