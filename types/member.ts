@@ -38,7 +38,7 @@ export interface Member {
   industries: string[];
   joinedAt: Date;
   lastActive: Date;
-  isAdmin: boolean;
+  siteRole: string;
 }
 
 export type MemberSortKey =
