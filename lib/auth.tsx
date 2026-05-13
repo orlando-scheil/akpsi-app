@@ -17,7 +17,7 @@ import {
   type User,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import { getMember, isEmailAllowed } from "@/lib/firestore";
+import { getMember, getAllowedRole } from "@/lib/firestore";
 import type { Member } from "@/types/member";
 
 interface AuthContextValue {
@@ -71,9 +71,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (firebaseUser) {
           const email = firebaseUser.email ?? "";
           const domainOk = email.endsWith(`@${ALLOWED_DOMAIN}`);
-          const allowed = domainOk && (await isEmailAllowed(email));
+          const role = domainOk ? await getAllowedRole(email) : null;
 
-          if (!domainOk || !allowed) {
+          if (!domainOk || !role) {
             await firebaseSignOut(auth);
             setUser(null);
             setMember(null);
@@ -107,8 +107,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error("Please sign in with your @uw.edu email address.");
     }
 
-    const allowed = await isEmailAllowed(email);
-    if (!allowed) {
+    const role = await getAllowedRole(email);
+    if (!role) {
       await firebaseSignOut(auth);
       throw new Error("Your email is not on the AKPsi member list. Contact an officer to get access.");
     }
